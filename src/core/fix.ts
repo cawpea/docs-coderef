@@ -18,10 +18,7 @@ import { applyFix, createFixAction, handleMultipleMatches, isFixableError } from
 import { askYesNo, createPromptInterface, displayFixPreview } from '../utils/prompt';
 import type { CodeRefError, FixOptions, FixResult } from '../utils/types';
 import { extractCodeRefs, findMarkdownFiles, validateCodeRef } from './validate';
-
-// 設定
-const DOCS_DIR = path.join(__dirname, '../..', 'docs');
-const PROJECT_ROOT = path.join(__dirname, '../..');
+import { loadFixConfig, getDocsPath, type CodeRefFixConfig } from '../config';
 
 // コマンドライン引数のパース
 function parseArgs(): FixOptions {
@@ -46,8 +43,9 @@ interface ErrorGroup {
 /**
  * エラーを収集
  */
-function collectErrors(): ErrorGroup[] {
-  const markdownFiles = findMarkdownFiles(DOCS_DIR);
+function collectErrors(config: CodeRefFixConfig): ErrorGroup[] {
+  const docsPath = getDocsPath(config);
+  const markdownFiles = findMarkdownFiles(docsPath);
   const errorsByDoc: Record<string, CodeRefError[]> = {};
 
   for (const file of markdownFiles) {
@@ -55,7 +53,7 @@ function collectErrors(): ErrorGroup[] {
     const refs = extractCodeRefs(content, file);
 
     for (const ref of refs) {
-      const errors = validateCodeRef(ref);
+      const errors = validateCodeRef(ref, config);
       const fixableErrors = errors.filter(isFixableError);
 
       if (fixableErrors.length > 0) {
@@ -79,6 +77,14 @@ function collectErrors(): ErrorGroup[] {
 async function main(): Promise<void> {
   const options = parseArgs();
 
+  // 設定を読み込み
+  const config = loadFixConfig({
+    dryRun: options.dryRun,
+    auto: options.auto,
+    backup: !options.noBackup,
+    verbose: options.verbose,
+  });
+
   console.log('🔧 CODE_REFエラーの修正を開始します...\n');
 
   if (options.dryRun) {
@@ -86,7 +92,7 @@ async function main(): Promise<void> {
   }
 
   // エラーを収集
-  const errorGroups = collectErrors();
+  const errorGroups = collectErrors(config);
 
   if (errorGroups.length === 0) {
     console.log('✅ 修正可能なエラーは見つかりませんでした');
@@ -104,7 +110,7 @@ async function main(): Promise<void> {
 
   try {
     for (const group of errorGroups) {
-      console.log(`\n📄 ${path.relative(PROJECT_ROOT, group.docFile)}`);
+      console.log(`\n📄 ${path.relative(config.projectRoot, group.docFile)}`);
       console.log(`   ${group.errors.length}個のエラー\n`);
 
       // エラーをdocLineNumber降順（下から上へ）にソート
@@ -120,7 +126,7 @@ async function main(): Promise<void> {
       for (const error of sortedErrors) {
         console.log(`\n❌ ${error.type}: ${error.message}`);
         console.log(
-          `   参照: ${path.relative(PROJECT_ROOT, error.ref.docFile)}${error.ref.docLineNumber ? `:${error.ref.docLineNumber}` : ''}`
+          `   参照: ${path.relative(config.projectRoot, error.ref.docFile)}${error.ref.docLineNumber ? `:${error.ref.docLineNumber}` : ''}`
         );
 
         // 修正アクションを作成
@@ -251,7 +257,7 @@ async function main(): Promise<void> {
     console.log(`\n💾 バックアップファイル: ${backupFiles.size}個`);
     for (const file of backupFiles) {
       const backupPath = `${file}.backup`;
-      console.log(`   ${path.relative(PROJECT_ROOT, backupPath)}`);
+      console.log(`   ${path.relative(config.projectRoot, backupPath)}`);
     }
   }
 
