@@ -17,7 +17,7 @@ import { createBackup } from '../utils/backup';
 import { applyFix, createFixAction, handleMultipleMatches, isFixableError } from '../utils/fix';
 import { askYesNo, createPromptInterface, displayFixPreview } from '../utils/prompt';
 import type { CodeRefError, FixOptions, FixResult } from '../utils/types';
-import { extractCodeRefs, findMarkdownFiles, validateCodeRef } from './validate';
+import { extractCodeRefs, findMarkdownFiles, validateCodeRef } from '../core/validate';
 import { loadFixConfig, getDocsPath, type CodeRefFixConfig } from '../config';
 
 // コマンドライン引数のパース
