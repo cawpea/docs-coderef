@@ -126,7 +126,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
 
   // Extract all CODE_REF references
   let totalRefs = 0;
-  const allRefs: Array<{ ref: any; file: string }> = [];
+  const allRefs: { ref: any; file: string }[] = [];
 
   for (const file of markdownFiles) {
     const content = fs.readFileSync(file, 'utf-8');
@@ -150,9 +150,9 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
   }
 
   // Validate each reference
-  const allErrors = await Promise.all(
-    allRefs.map(({ ref }) => validateCodeRef(ref, config))
-  ).then((results) => results.flat());
+  const allErrors = await Promise.all(allRefs.map(({ ref }) => validateCodeRef(ref, config))).then(
+    (results) => results.flat()
+  );
 
   // Display results
   if (allErrors.length === 0) {

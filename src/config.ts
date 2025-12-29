@@ -119,7 +119,7 @@ function loadPackageJsonConfig(projectRoot: string): PartialCodeRefConfig | null
     const content = fs.readFileSync(packageJsonPath, 'utf-8');
     const packageJson = JSON.parse(content);
     return packageJson.coderef || null;
-  } catch (error) {
+  } catch (_error) {
     // Silently ignore package.json parsing errors
     return null;
   }
@@ -162,7 +162,7 @@ function loadEnvConfig(): PartialCodeRefConfig {
  */
 function mergeConfigs(
   defaultConfig: CodeRefConfig,
-  ...configs: Array<PartialCodeRefConfig | null>
+  ...configs: (PartialCodeRefConfig | null)[]
 ): CodeRefConfig {
   const merged: Partial<CodeRefConfig> = {};
 
@@ -222,13 +222,7 @@ export function loadConfig(options: PartialCodeRefConfig = {}): CodeRefConfig {
   const envConfig = loadEnvConfig();
 
   // Merge with proper precedence
-  const config = mergeConfigs(
-    defaultConfig,
-    packageJsonConfig,
-    fileConfig,
-    envConfig,
-    options
-  );
+  const config = mergeConfigs(defaultConfig, packageJsonConfig, fileConfig, envConfig, options);
 
   // Validate final configuration
   validateConfig(config);

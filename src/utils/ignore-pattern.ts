@@ -7,7 +7,7 @@ import * as path from 'path';
 export function matchesPattern(filePath: string, pattern: string): boolean {
   // ディレクトリパターン（末尾が/）
   if (pattern.endsWith('/')) {
-    return filePath.startsWith(pattern) || filePath.startsWith(pattern.slice(0, -1) + '/');
+    return filePath.startsWith(pattern) || filePath.startsWith(`${pattern.slice(0, -1)}/`);
   }
 
   // **/ パターン（任意のディレクトリ階層）
@@ -23,13 +23,13 @@ export function matchesPattern(filePath: string, pattern: string): boolean {
       const pathParts = filePath.split('/');
       return regex.test(basename) || pathParts.some((part) => regex.test(part));
     }
-    return filePath.endsWith(suffix) || filePath.includes('/' + suffix);
+    return filePath.endsWith(suffix) || filePath.includes(`/${suffix}`);
   }
 
   // * または ? ワイルドカード（パスセパレーター無しの場合のみベース名でマッチング）
   if (pattern.includes('*') || pattern.includes('?')) {
     const regex = new RegExp(
-      '^' + pattern.replace(/\./g, '\\.').replace(/\*/g, '.*').replace(/\?/g, '.') + '$'
+      `^${pattern.replace(/\./g, '\\.').replace(/\*/g, '.*').replace(/\?/g, '.')}$`
     );
     // パスセパレーターが無いパターンの場合はベース名のみでマッチング
     if (!pattern.includes('/')) {
@@ -40,7 +40,7 @@ export function matchesPattern(filePath: string, pattern: string): boolean {
   }
 
   // 完全一致またはプレフィックスマッチ
-  return filePath === pattern || filePath.startsWith(pattern + '/');
+  return filePath === pattern || filePath.startsWith(`${pattern}/`);
 }
 
 /**

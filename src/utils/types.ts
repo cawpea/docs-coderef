@@ -90,7 +90,7 @@ export interface FixAction {
   newStartLine?: number;
   newEndLine?: number;
   newCodeBlock?: string;
-  matchOptions?: Array<{ start: number; end: number }>;
+  matchOptions?: { start: number; end: number }[];
   codeBlockPosition?: {
     start: number;
     end: number;

@@ -244,7 +244,7 @@ async function main(): Promise<void> {
   }
 
   // 結果サマリー
-  console.log('\n' + '='.repeat(60));
+  console.log(`\n${'='.repeat(60)}`);
   console.log('📊 修正結果サマリー\n');
 
   const successful = fixResults.filter((r) => r.success).length;

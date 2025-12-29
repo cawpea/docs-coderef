@@ -88,10 +88,7 @@ describe('Config System', () => {
           },
         };
 
-        fs.writeFileSync(
-          path.join(testDir, 'package.json'),
-          JSON.stringify(packageJson, null, 2)
-        );
+        fs.writeFileSync(path.join(testDir, 'package.json'), JSON.stringify(packageJson, null, 2));
 
         const config = loadConfig();
 
@@ -105,10 +102,7 @@ describe('Config System', () => {
           version: '1.0.0',
         };
 
-        fs.writeFileSync(
-          path.join(testDir, 'package.json'),
-          JSON.stringify(packageJson, null, 2)
-        );
+        fs.writeFileSync(path.join(testDir, 'package.json'), JSON.stringify(packageJson, null, 2));
 
         const config = loadConfig();
 

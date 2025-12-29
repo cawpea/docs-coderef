@@ -34,6 +34,7 @@
     "CHANGELOG.md"
   ],
   "scripts": {
+    "prepare": "husky install",
     "build": "tsup src/index.ts src/cli/validate.ts src/cli/fix.ts --format cjs,esm --dts --clean",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "test": "jest",
@@ -41,8 +42,8 @@
     "test:coverage": "jest --coverage",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
-    "format": "prettier --write \"src/**/*.ts\"",
-    "format:check": "prettier --check \"src/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\" \"*.{js,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"*.{js,json,md}\"",
     "type-check": "tsc --noEmit",
     "prepublishOnly": "npm run build && npm test"
   },
@@ -60,11 +61,14 @@
     "@typescript-eslint/parser": "^8.18.1",
     "eslint": "^9.17.0",
     "eslint-config-prettier": "^9.1.0",
+    "husky": "^9.1.7",
     "jest": "^30.2.0",
+    "lint-staged": "^16.2.7",
     "prettier": "^3.4.2",
     "ts-jest": "^29.4.5",
     "tsup": "^8.0.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.50.1"
   },
   "repository": {
     "type": "git",
@@ -75,5 +79,14 @@
   },
   "homepage": "https://github.com/cawpea/coderef#readme",
   "author": "cawpea",
-  "license": "MIT"
+  "license": "MIT",
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,json,md}": [
+      "prettier --write"
+    ]
+  }
 }

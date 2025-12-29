@@ -1,0 +1,25 @@
+# Build outputs
+dist/
+build/
+coverage/
+
+# Dependencies
+node_modules/
+
+# Lock files (machine-generated)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Logs
+*.log
+
+# Cache
+.eslintcache
+*.tsbuildinfo
+
+# Test snapshots (if any)
+**/__snapshots__/
+
+# Generated files
+CHANGELOG.md

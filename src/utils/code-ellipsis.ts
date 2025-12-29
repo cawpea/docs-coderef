@@ -32,12 +32,12 @@ function findClassNode(fileContent: string, className: string): TSESTree.ClassDe
   });
 
   function visit(node: TSESTree.Node): TSESTree.ClassDeclaration | null {
-    if (node.type === 'ClassDeclaration' && node.id && node.id.name === className) {
+    if (node.type === 'ClassDeclaration' && node.id?.name === className) {
       return node;
     }
 
     // 子ノードを再帰的に探索
-    const keys = Object.keys(node) as Array<keyof TSESTree.Node>;
+    const keys = Object.keys(node) as (keyof TSESTree.Node)[];
     for (const key of keys) {
       const value = node[key];
       if (value && typeof value === 'object') {
@@ -67,7 +67,7 @@ function findClassNode(fileContent: string, className: string): TSESTree.ClassDe
 function getClassMembers(classNode: TSESTree.ClassDeclaration): ClassMember[] {
   const members: ClassMember[] = [];
 
-  if (!classNode.body || !classNode.body.body) {
+  if (!classNode.body?.body) {
     return members;
   }
 
@@ -153,7 +153,7 @@ export function insertEllipsis(
   if (options.className) {
     // クラス内のメソッドのみ表示
     const classNode = findClassNode(fileContent, options.className);
-    if (!classNode || !classNode.loc) {
+    if (!classNode?.loc) {
       // クラスが見つからない場合は元のファイル内容を返す
       return fileContent;
     }

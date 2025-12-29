@@ -61,7 +61,4 @@ export {
   searchCodeInFile,
 } from './utils/code-comparison';
 
-export {
-  isIgnored,
-  loadDocsignorePatterns,
-} from './utils/ignore-pattern';
+export { isIgnored, loadDocsignorePatterns } from './utils/ignore-pattern';

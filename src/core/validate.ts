@@ -50,8 +50,8 @@ export function findMarkdownFiles(dir: string): string[] {
 /**
  * コードブロックとインラインコードの範囲を検出
  */
-function getCodeBlockRanges(content: string): Array<{ start: number; end: number }> {
-  const ranges: Array<{ start: number; end: number }> = [];
+function getCodeBlockRanges(content: string): { start: number; end: number }[] {
+  const ranges: { start: number; end: number }[] = [];
 
   // トリプルバッククォートのコードブロック
   const codeBlockPattern = /```[\s\S]*?```/g;
@@ -79,10 +79,7 @@ function getCodeBlockRanges(content: string): Array<{ start: number; end: number
 /**
  * 位置がコードブロックまたはインラインコード内かチェック
  */
-function isInsideCodeBlock(
-  position: number,
-  ranges: Array<{ start: number; end: number }>
-): boolean {
+function isInsideCodeBlock(position: number, ranges: { start: number; end: number }[]): boolean {
   return ranges.some((range) => position >= range.start && position < range.end);
 }
 
@@ -416,4 +413,3 @@ export function validateCodeRef(ref: CodeRef, config?: CodeRefConfig): CodeRefEr
 
   return errors;
 }
-

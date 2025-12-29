@@ -22,7 +22,7 @@ export function dedentCode(code: string): string {
   for (const line of lines) {
     if (line.trim().length === 0) continue; // 空行はスキップ
 
-    const indent = line.match(/^(\s*)/)?.[1].length ?? 0;
+    const indent = /^(\s*)/.exec(line)?.[1].length ?? 0;
     minIndent = Math.min(minIndent, indent);
   }
 

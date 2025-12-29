@@ -48,7 +48,7 @@ function getStartLineWithJSDoc(node: TSESTree.Node, fileContent: string): number
   if (!node.loc) return 1;
 
   const lines = fileContent.split('\n');
-  let startLine = node.loc.start.line;
+  const startLine = node.loc.start.line;
 
   // ノードの直前の行から上に向かってJSDocを探す
   for (let i = startLine - 2; i >= 0; i--) {
@@ -82,12 +82,12 @@ function findClassByName(ast: TSESTree.Program, className: string): TSESTree.Cla
   const classes: TSESTree.ClassDeclaration[] = [];
 
   function visit(node: TSESTree.Node) {
-    if (node.type === 'ClassDeclaration' && node.id && node.id.name === className) {
+    if (node.type === 'ClassDeclaration' && node.id?.name === className) {
       classes.push(node);
     }
 
     // 子ノードを再帰的に探索
-    const keys = Object.keys(node) as Array<keyof TSESTree.Node>;
+    const keys = Object.keys(node) as (keyof TSESTree.Node)[];
     for (const key of keys) {
       const value = node[key];
       if (value && typeof value === 'object') {
@@ -115,7 +115,7 @@ function findMethodInClass(
   classNode: TSESTree.ClassDeclaration,
   methodName: string
 ): TSESTree.MethodDefinition | null {
-  if (!classNode.body || !classNode.body.body) return null;
+  if (!classNode.body?.body) return null;
 
   for (const member of classNode.body.body) {
     if (member.type === 'MethodDefinition' && member.key.type === 'Identifier') {
@@ -139,15 +139,11 @@ function findFunctionByName(
 
   // トップレベルの関数のみ検索
   for (const statement of ast.body) {
-    if (
-      statement.type === 'FunctionDeclaration' &&
-      statement.id &&
-      statement.id.name === functionName
-    ) {
+    if (statement.type === 'FunctionDeclaration' && statement.id?.name === functionName) {
       functions.push(statement);
     } else if (statement.type === 'ExportNamedDeclaration' && statement.declaration) {
       const decl = statement.declaration;
-      if (decl.type === 'FunctionDeclaration' && decl.id && decl.id.name === functionName) {
+      if (decl.type === 'FunctionDeclaration' && decl.id?.name === functionName) {
         functions.push(decl);
       }
     }

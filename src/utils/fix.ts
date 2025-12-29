@@ -4,7 +4,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import * as readline from 'readline';
+import type * as readline from 'readline';
 
 import { expandMatchToScope } from './ast-scope-expansion';
 import { findSymbolInAST } from './ast-symbol-search';
@@ -86,17 +86,17 @@ function findCodeBlockNearComment(
   const searchWindow = content.substring(searchStart, searchStart + 5000);
 
   // 次のCODE_REFコメントを検索
-  const nextCommentMatch = searchWindow.match(/<!--\s*CODE_REF:/);
-  const searchLimit = nextCommentMatch ? nextCommentMatch.index! : searchWindow.length;
+  const nextCommentMatch = /<!--\s*CODE_REF:/.exec(searchWindow);
+  const searchLimit = nextCommentMatch ? nextCommentMatch.index : searchWindow.length;
 
   // コードブロックを検索（次のCODE_REFコメントまで）
   const limitedWindow = searchWindow.substring(0, searchLimit);
   const codeBlockPattern = /```([\w]*)\s*\n([\s\S]*?)```/;
-  const match = limitedWindow.match(codeBlockPattern);
+  const match = codeBlockPattern.exec(limitedWindow);
 
   if (!match) return null;
 
-  const absoluteStart = searchStart + match.index!;
+  const absoluteStart = searchStart + match.index;
   const absoluteEnd = absoluteStart + match[0].length;
 
   return {
@@ -282,8 +282,7 @@ export function createContentMismatchFix(error: CodeRefError): FixAction | FixAc
   // 拡張結果が元の範囲と異なり、かつ高信頼度の場合は行番号も更新
   const expanded = expandedMatches[0];
   if (
-    expanded &&
-    expanded.confidence === 'high' &&
+    expanded?.confidence === 'high' &&
     (expanded.start !== ref.startLine || expanded.end !== ref.endLine)
   ) {
     // スコープ拡張が成功した場合は行番号も更新
@@ -327,7 +326,7 @@ export function createLineOutOfRangeFix(error: CodeRefError): FixAction {
   const { ref } = error;
 
   // エラーメッセージから行数を抽出
-  const match = error.message.match(/(\d+)\s*>\s*(\d+)/);
+  const match = /(\d+)\s*>\s*(\d+)/.exec(error.message);
   if (!match) {
     throw new Error('LINE_OUT_OF_RANGEエラーメッセージから行数を取得できません');
   }

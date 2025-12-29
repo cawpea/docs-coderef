@@ -3,7 +3,7 @@
  */
 
 import * as fs from 'fs';
-import * as readline from 'readline';
+import type * as readline from 'readline';
 
 import { extractLinesFromFile, searchCodeInFileWithScopeExpansion } from './code-comparison';
 import {
@@ -20,7 +20,7 @@ import {
 } from './fix';
 import * as markdownEdit from './markdown-edit';
 import * as prompt from './prompt';
-import { CodeRefError, FixAction } from './types';
+import type { CodeRefError, FixAction } from './types';
 
 // モック設定
 jest.mock('fs');
@@ -488,7 +488,7 @@ describe('優先順位付けロジック', () => {
     const createMockError = (
       startLine: number,
       endLine: number,
-      codeBlock: string = 'test code'
+      codeBlock = 'test code'
     ): CodeRefError => ({
       type: 'CODE_LOCATION_MISMATCH',
       message: 'Test error',
@@ -502,7 +502,7 @@ describe('優先順位付けロジック', () => {
       },
     });
 
-    const createMockReadline = (answer: number = 0): readline.Interface => {
+    const createMockReadline = (answer = 0): readline.Interface => {
       const rl = {
         question: jest.fn((_query, callback) => {
           // ユーザーが選択肢を選んだとして、すぐにコールバックを呼ぶ

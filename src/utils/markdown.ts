@@ -31,14 +31,14 @@ export function extractCodeBlockAfterComment(content: string, commentIndex: numb
   // 言語識別子はオプション（typescript, javascript, など）
   // 言語識別子の後に空白があってもマッチする
   const codeBlockPattern = /```[\w]*\s*\n([\s\S]*?)```/;
-  const match = searchWindow.match(codeBlockPattern);
+  const match = codeBlockPattern.exec(searchWindow);
 
   if (!match) {
     return null;
   }
 
   // コードブロックの開始位置を取得
-  const codeBlockStart = match.index!;
+  const codeBlockStart = match.index;
 
   // コメント終了後からコードブロック開始までの間のテキストを取得
   const textBetween = searchWindow.substring(0, codeBlockStart);

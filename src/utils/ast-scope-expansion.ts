@@ -52,7 +52,7 @@ function findNodeAtLine(ast: TSESTree.Program, targetLine: number): TSESTree.Nod
       foundNode = node;
 
       // 子ノードを探索（より具体的なノードを見つけるため）
-      const keys = Object.keys(node) as Array<keyof TSESTree.Node>;
+      const keys = Object.keys(node) as (keyof TSESTree.Node)[];
       for (const key of keys) {
         const value = node[key];
         if (value && typeof value === 'object') {
@@ -137,7 +137,7 @@ function findParentScope(ast: TSESTree.Program, targetNode: TSESTree.Node): TSES
     }
 
     // 子ノードを探索
-    const keys = Object.keys(node) as Array<keyof TSESTree.Node>;
+    const keys = Object.keys(node) as (keyof TSESTree.Node)[];
     for (const key of keys) {
       const value = node[key];
       if (value && typeof value === 'object') {
@@ -232,7 +232,7 @@ function tryASTExpansion(
     // 親スコープを探索
     const parentScope = findParentScope(ast, targetNode);
 
-    if (!parentScope || !parentScope.loc) {
+    if (!parentScope?.loc) {
       // 親スコープが見つからない場合、元のマッチを返す
       return {
         success: true,

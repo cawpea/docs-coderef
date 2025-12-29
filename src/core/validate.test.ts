@@ -39,7 +39,7 @@ jest.mock('path', () => {
             // 親ディレクトリに移動
             const parts = acc.split('/').filter(Boolean);
             parts.pop();
-            return '/' + parts.join('/');
+            return `/${parts.join('/')}`;
           } else if (arg === '.') {
             // 現在のディレクトリ
             return acc;
@@ -51,9 +51,9 @@ jest.mock('path', () => {
         }, '');
       }
       // デフォルト: 全ての引数を結合
-      return '/' + args.filter((arg) => arg && arg !== '.').join('/');
+      return `/${args.filter((arg) => arg && arg !== '.').join('/')}`;
     }),
-    relative: jest.fn((from: string, to: string) => to.replace(from + '/', '')),
+    relative: jest.fn((from: string, to: string) => to.replace(`${from}/`, '')),
   };
 });
 

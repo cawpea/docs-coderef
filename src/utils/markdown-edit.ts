@@ -76,7 +76,7 @@ export function replaceCodeBlock(
       const endIndex = startIndex + match[0].length;
 
       // 言語識別子を抽出
-      const langMatch = match[0].match(/```([\w]*)\n/);
+      const langMatch = /```([\w]*)\n/.exec(match[0]);
       const language = langMatch ? langMatch[1] : '';
 
       const newBlock = `\`\`\`${language}\n${newCodeBlock}\n\`\`\``;
@@ -115,14 +115,14 @@ export function findCodeBlockPosition(
   const searchStart = commentEnd + 3;
   const searchWindow = content.substring(searchStart, searchStart + 500);
 
-  const codeBlockMatch = searchWindow.match(/```([\w]*)\n([\s\S]*?)```/);
+  const codeBlockMatch = /```([\w]*)\n([\s\S]*?)```/.exec(searchWindow);
   if (!codeBlockMatch) {
     return null;
   }
 
   return {
-    start: searchStart + codeBlockMatch.index!,
-    end: searchStart + codeBlockMatch.index! + codeBlockMatch[0].length,
+    start: searchStart + codeBlockMatch.index,
+    end: searchStart + codeBlockMatch.index + codeBlockMatch[0].length,
     language: codeBlockMatch[1] || 'typescript',
   };
 }

@@ -123,7 +123,11 @@ dist
 .tern-port
 
 # Stores VSCode versions used for testing VSCode extensions
+.vscode/
 .vscode-test
+
+# Claude.ai files
+.claude/
 
 # yarn v3
 .pnp.*
