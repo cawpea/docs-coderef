@@ -19,6 +19,7 @@ Start here if you want to contribute:
 - [Coding Standards](development/coding-standards.md) - Style guide and conventions
 - [Git Conventions](development/git-conventions.md) - Commit message format
 - [Testing Guide](development/testing-guide.md) - Writing and running tests
+- [Release Process](development/release.md) - Release procedures and automation
 
 ## Architecture & Design
 
