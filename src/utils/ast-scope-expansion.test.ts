@@ -1,4 +1,4 @@
-import { expandMatchToScope } from './ast-scope-expansion';
+import { expandMatchToScope } from '@/utils/ast-scope-expansion';
 
 describe('ast-scope-expansion', () => {
   describe('expandMatchToScope', () => {

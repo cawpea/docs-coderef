@@ -9,8 +9,8 @@ import {
   askYesNo,
   createPromptInterface,
   displayFixPreview,
-} from './prompt';
-import type { FixAction } from './types';
+} from '@/utils/prompt';
+import type { FixAction } from '@/utils/types';
 
 // モジュールをモック
 jest.mock('fs');

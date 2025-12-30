@@ -7,7 +7,7 @@ import * as path from 'path';
 import { parse as parseTypeScript } from '@typescript-eslint/typescript-estree';
 import type { TSESTree } from '@typescript-eslint/typescript-estree';
 
-import type { SymbolMatch } from './types';
+import type { SymbolMatch } from '@/utils/types';
 
 /**
  * ASTキャッシュ（同じファイルを複数回パースしない）

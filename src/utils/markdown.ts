@@ -2,7 +2,7 @@
  * マークダウンドキュメント処理ユーティリティ
  */
 
-import type { CodeRef } from './types';
+import type { CodeRef } from '@/utils/types';
 
 /**
  * CODE_REFコメントの後にあるコードブロックを抽出する

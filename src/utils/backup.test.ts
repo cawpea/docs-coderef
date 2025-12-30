@@ -2,7 +2,7 @@ import * as fs from 'fs';
 
 import { jest } from '@jest/globals';
 
-import { createBackup, deleteBackup, listBackups, restoreBackup } from './backup';
+import { createBackup, deleteBackup, listBackups, restoreBackup } from '@/utils/backup';
 
 // fsモジュールをモック
 jest.mock('fs');

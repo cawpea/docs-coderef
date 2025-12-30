@@ -4,7 +4,7 @@ import {
   moveCodeRefCommentBeforeCodeBlock,
   replaceCodeBlock,
   replaceCodeRefComment,
-} from './markdown-edit';
+} from '@/utils/markdown-edit';
 
 describe('markdown-edit', () => {
   describe('replaceCodeRefComment', () => {

@@ -6,9 +6,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
 
-import { extractLinesFromFile } from './code-comparison';
-import { displayCodeDiff, displayLineRangeDiff } from './diff-display';
-import type { FixAction } from './types';
+import { extractLinesFromFile } from '@/utils/code-comparison';
+import { displayCodeDiff, displayLineRangeDiff } from '@/utils/diff-display';
+import type { FixAction } from '@/utils/types';
 
 /**
  * Readlineインターフェースを作成

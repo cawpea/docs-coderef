@@ -4,8 +4,8 @@ import {
   isTypeScriptOrJavaScript,
   parseSymbolPath,
   selectBestSymbolMatch,
-} from './ast-symbol-search';
-import type { SymbolMatch } from './types';
+} from '@/utils/ast-symbol-search';
+import type { SymbolMatch } from '@/utils/types';
 
 describe('ast-symbol-search', () => {
   afterEach(() => {

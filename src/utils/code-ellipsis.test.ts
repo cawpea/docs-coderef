@@ -2,7 +2,7 @@ import * as fs from 'fs';
 
 import { jest } from '@jest/globals';
 
-import { insertEllipsis, removeEllipsis } from './code-ellipsis';
+import { insertEllipsis, removeEllipsis } from '@/utils/code-ellipsis';
 
 // fsモジュールをモック
 jest.mock('fs');

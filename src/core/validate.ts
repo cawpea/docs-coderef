@@ -10,15 +10,15 @@ import {
   isTypeScriptOrJavaScript,
   parseSymbolPath,
   selectBestSymbolMatch,
-} from '../utils/ast-symbol-search';
+} from '@/utils/ast-symbol-search';
 import {
   compareCodeContent,
   extractLinesFromFile,
   searchCodeInFile,
-} from '../utils/code-comparison';
-import { associateCodeBlocksWithRefs } from '../utils/markdown';
-import type { CodeRef, CodeRefError } from '../utils/types';
-import { loadConfig, type CodeRefConfig } from '../config';
+} from '@/utils/code-comparison';
+import { associateCodeBlocksWithRefs } from '@/utils/markdown';
+import type { CodeRef, CodeRefError } from '@/utils/types';
+import { loadConfig, type CodeRefConfig } from '@/config';
 
 // CODE_REF パターン定数
 const CODE_REF_PATTERN = /<!--\s*CODE_REF:\s*([^:#]+?)(?:#([^:]+?))?(?::(\d+)-(\d+))?\s*-->/g;

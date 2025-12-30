@@ -21,7 +21,7 @@ export {
   validateCodeRef,
   validateCodeContent,
   validateSymbolRef,
-} from './core/validate';
+} from '@/core/validate';
 
 // Configuration
 export {
@@ -34,7 +34,7 @@ export {
   type CodeRefFixConfig,
   type PartialCodeRefConfig,
   type PartialCodeRefFixConfig,
-} from './config';
+} from '@/config';
 
 // Types
 export type {
@@ -45,7 +45,7 @@ export type {
   FixOptions,
   FixResult,
   ExpandedMatch,
-} from './utils/types';
+} from '@/utils/types';
 
 // Utility functions
 export {
@@ -53,12 +53,12 @@ export {
   findSymbolInAST,
   parseSymbolPath,
   selectBestSymbolMatch,
-} from './utils/ast-symbol-search';
+} from '@/utils/ast-symbol-search';
 
 export {
   compareCodeContent,
   extractLinesFromFile,
   searchCodeInFile,
-} from './utils/code-comparison';
+} from '@/utils/code-comparison';
 
-export { isIgnored, loadDocsignorePatterns } from './utils/ignore-pattern';
+export { isIgnored, loadDocsignorePatterns } from '@/utils/ignore-pattern';

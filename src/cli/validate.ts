@@ -13,11 +13,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { loadConfig, getDocsPath, getIgnoreFilePath } from '../config';
-import { findMarkdownFiles, extractCodeRefs, validateCodeRef } from '../core/validate';
-import { isIgnored, loadDocsignorePatterns } from '../utils/ignore-pattern';
-import { displayLineRangeDiff } from '../utils/diff-display';
-import { extractLinesFromFile } from '../utils/code-comparison';
+import { loadConfig, getDocsPath, getIgnoreFilePath } from '@/config';
+import { findMarkdownFiles, extractCodeRefs, validateCodeRef } from '@/core/validate';
+import { isIgnored, loadDocsignorePatterns } from '@/utils/ignore-pattern';
+import { displayLineRangeDiff } from '@/utils/diff-display';
+import { extractLinesFromFile } from '@/utils/code-comparison';
 
 /**
  * CLI options

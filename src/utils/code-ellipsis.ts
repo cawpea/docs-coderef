@@ -7,7 +7,7 @@ import * as fs from 'fs';
 import { parse as parseTypeScript } from '@typescript-eslint/typescript-estree';
 import type { TSESTree } from '@typescript-eslint/typescript-estree';
 
-import { isTypeScriptOrJavaScript } from './ast-symbol-search';
+import { isTypeScriptOrJavaScript } from '@/utils/ast-symbol-search';
 
 const ELLIPSIS = '  // ... (省略) ...';
 

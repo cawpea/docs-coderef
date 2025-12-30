@@ -4,9 +4,9 @@
 
 import * as fs from 'fs';
 
-import { expandMatchToScope } from './ast-scope-expansion';
-import { normalizeCode } from './markdown';
-import type { ExpandedMatch } from './types';
+import { expandMatchToScope } from '@/utils/ast-scope-expansion';
+import { normalizeCode } from '@/utils/markdown';
+import type { ExpandedMatch } from '@/utils/types';
 
 /**
  * コードから共通の先頭インデントを除去する

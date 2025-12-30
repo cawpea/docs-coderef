@@ -2,7 +2,7 @@
  * マークダウン編集ユーティリティ
  */
 
-import { normalizeCode } from './markdown';
+import { normalizeCode } from '@/utils/markdown';
 
 /**
  * CODE_REFコメントを置換

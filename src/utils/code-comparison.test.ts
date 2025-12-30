@@ -7,7 +7,7 @@ import {
   dedentCode,
   extractLinesFromFile,
   searchCodeInFile,
-} from './code-comparison';
+} from '@/utils/code-comparison';
 
 // fsモジュールをモック
 jest.mock('fs');

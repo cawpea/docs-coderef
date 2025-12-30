@@ -7,7 +7,7 @@ import {
   getDocsPath,
   getIgnoreFilePath,
   type CodeRefConfig,
-} from './config';
+} from '@/config';
 
 describe('Config System', () => {
   const originalCwd = process.cwd();

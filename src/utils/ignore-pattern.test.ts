@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 
-import { isIgnored, loadDocsignorePatterns, matchesPattern } from './ignore-pattern';
+import { isIgnored, loadDocsignorePatterns, matchesPattern } from '@/utils/ignore-pattern';
 
 // fsをモック
 jest.mock('fs');

@@ -7,7 +7,7 @@ import * as path from 'path';
 import { parse as parseTypeScript } from '@typescript-eslint/typescript-estree';
 import type { TSESTree } from '@typescript-eslint/typescript-estree';
 
-import type { ExpandedMatch } from './types';
+import type { ExpandedMatch } from '@/utils/types';
 
 /**
  * マッチ拡張のオプション

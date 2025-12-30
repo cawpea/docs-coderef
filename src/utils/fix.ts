@@ -6,18 +6,18 @@ import * as fs from 'fs';
 import * as path from 'path';
 import type * as readline from 'readline';
 
-import { expandMatchToScope } from './ast-scope-expansion';
-import { findSymbolInAST } from './ast-symbol-search';
-import { extractLinesFromFile, searchCodeInFileWithScopeExpansion } from './code-comparison';
+import { expandMatchToScope } from '@/utils/ast-scope-expansion';
+import { findSymbolInAST } from '@/utils/ast-symbol-search';
+import { extractLinesFromFile, searchCodeInFileWithScopeExpansion } from '@/utils/code-comparison';
 import {
   findCodeBlockPosition,
   insertCodeBlockAfterComment,
   moveCodeRefCommentBeforeCodeBlock,
   replaceCodeBlock,
   replaceCodeRefComment,
-} from './markdown-edit';
-import { askSelectOption } from './prompt';
-import type { CodeRefError, ExpandedMatch, FixAction } from './types';
+} from '@/utils/markdown-edit';
+import { askSelectOption } from '@/utils/prompt';
+import type { CodeRefError, ExpandedMatch, FixAction } from '@/utils/types';
 
 /**
  * エラーが修正可能かチェック

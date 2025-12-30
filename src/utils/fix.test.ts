@@ -5,7 +5,7 @@
 import * as fs from 'fs';
 import type * as readline from 'readline';
 
-import { extractLinesFromFile, searchCodeInFileWithScopeExpansion } from './code-comparison';
+import { extractLinesFromFile, searchCodeInFileWithScopeExpansion } from '@/utils/code-comparison';
 import {
   applyFix,
   createBlockMissingFix,
@@ -17,14 +17,14 @@ import {
   createSymbolRangeMismatchFix,
   handleMultipleMatches,
   isFixableError,
-} from './fix';
-import * as markdownEdit from './markdown-edit';
-import * as prompt from './prompt';
-import type { CodeRefError, FixAction } from './types';
+} from '@/utils/fix';
+import * as markdownEdit from '@/utils/markdown-edit';
+import * as prompt from '@/utils/prompt';
+import type { CodeRefError, FixAction } from '@/utils/types';
 
 // モック設定
 jest.mock('fs');
-jest.mock('./code-comparison', () => ({
+jest.mock('@/utils/code-comparison', () => ({
   searchCodeInFile: jest.fn(),
   searchCodeInFileWithScopeExpansion: jest.fn(),
   extractLinesFromFile: jest.fn(),
