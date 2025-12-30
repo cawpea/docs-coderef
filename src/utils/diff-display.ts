@@ -1,8 +1,8 @@
 /**
- * コードの差分を視覚的に表示するユーティリティ
+ * Utility for visually displaying code diffs
  */
 
-// ANSIカラーコード
+// ANSI color codes
 const COLORS = {
   RED: '\x1b[31m',
   GREEN: '\x1b[32m',
@@ -11,10 +11,10 @@ const COLORS = {
 };
 
 /**
- * 2つのコードブロックの差分を行単位で表示
- * @param expected 期待されるコード（ドキュメント内のコードブロック）
- * @param actual 実際のコード（ファイルから取得したコード）
- * @returns 色付けされた差分表示の文字列
+ * Display diff between two code blocks line by line
+ * @param expected Expected code (code block in document)
+ * @param actual Actual code (code retrieved from file)
+ * @returns Colored diff display string
  */
 export function displayCodeDiff(expected: string, actual: string): string {
   const expectedLines = expected.split('\n');
@@ -23,32 +23,32 @@ export function displayCodeDiff(expected: string, actual: string): string {
   const output: string[] = [];
   const maxLines = Math.max(expectedLines.length, actualLines.length);
 
-  // ヘッダー
+  // Header
   output.push(
     `${COLORS.DIM}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${COLORS.RESET}`
   );
-  output.push(`${COLORS.RED}- 期待されるコード (ドキュメント内)${COLORS.RESET}`);
-  output.push(`${COLORS.GREEN}+ 実際のコード (ファイル内)${COLORS.RESET}`);
+  output.push(`${COLORS.RED}- Expected code (in document)${COLORS.RESET}`);
+  output.push(`${COLORS.GREEN}+ Actual code (in file)${COLORS.RESET}`);
   output.push(
     `${COLORS.DIM}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${COLORS.RESET}`
   );
 
-  // 行ごとに比較
+  // Compare line by line
   for (let i = 0; i < maxLines; i++) {
     const expectedLine = expectedLines[i];
     const actualLine = actualLines[i];
 
     if (expectedLine === actualLine) {
-      // 一致する行（両方存在する場合）
+      // Matching lines (when both exist)
       if (expectedLine !== undefined) {
         output.push(`  ${expectedLine}`);
       }
     } else {
-      // 期待される行（削除された行）
+      // Expected lines (deleted lines)
       if (expectedLine !== undefined) {
         output.push(`${COLORS.RED}- ${expectedLine}${COLORS.RESET}`);
       }
-      // 実際の行（追加された行）
+      // Actual lines (added lines)
       if (actualLine !== undefined) {
         output.push(`${COLORS.GREEN}+ ${actualLine}${COLORS.RESET}`);
       }
@@ -63,11 +63,11 @@ export function displayCodeDiff(expected: string, actual: string): string {
 }
 
 /**
- * 行番号の差分を視覚的に表示（CODE_LOCATION_MISMATCH用）
- * @param code コードの内容
- * @param expectedRange 期待される行範囲
- * @param actualRange 実際の行範囲
- * @returns 色付けされた行番号差分表示の文字列
+ * Visually display line number diff (for CODE_LOCATION_MISMATCH)
+ * @param code Code content
+ * @param expectedRange Expected line range
+ * @param actualRange Actual line range
+ * @returns Colored line number diff display string
  */
 export function displayLineRangeDiff(
   code: string,
@@ -76,27 +76,27 @@ export function displayLineRangeDiff(
 ): string {
   const output: string[] = [];
 
-  // ヘッダー
+  // Header
   output.push(
     `${COLORS.DIM}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${COLORS.RESET}`
   );
   output.push(
-    `${COLORS.RED}- 期待される行範囲: ${expectedRange.start}-${expectedRange.end}${COLORS.RESET}`
+    `${COLORS.RED}- Expected line range: ${expectedRange.start}-${expectedRange.end}${COLORS.RESET}`
   );
   output.push(
-    `${COLORS.GREEN}+ 実際の行範囲: ${actualRange.start}-${actualRange.end}${COLORS.RESET}`
+    `${COLORS.GREEN}+ Actual line range: ${actualRange.start}-${actualRange.end}${COLORS.RESET}`
   );
   output.push(
     `${COLORS.DIM}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${COLORS.RESET}`
   );
 
-  // コードを表示（内容は同じなので、両方の行番号を表示）
+  // Display code (content is the same, show both line numbers)
   const codeLines = code.split('\n');
   codeLines.forEach((line, index) => {
     const expectedLineNum = expectedRange.start + index;
     const actualLineNum = actualRange.start + index;
 
-    // 期待される行番号と実際の行番号を並べて表示
+    // Display expected and actual line numbers side by side
     output.push(
       `${COLORS.RED}${expectedLineNum.toString().padStart(4)}${COLORS.RESET} | ` +
         `${COLORS.GREEN}${actualLineNum.toString().padStart(4)}${COLORS.RESET} | ` +
@@ -112,10 +112,10 @@ export function displayLineRangeDiff(
 }
 
 /**
- * 長いテキストを切り詰める（表示用）
- * @param text テキスト
- * @param maxLength 最大長
- * @returns 切り詰められたテキスト
+ * Truncate long text (for display)
+ * @param text Text
+ * @param maxLength Maximum length
+ * @returns Truncated text
  */
 export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) {

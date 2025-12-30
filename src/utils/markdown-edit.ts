@@ -1,28 +1,28 @@
 /**
- * マークダウン編集ユーティリティ
+ * Markdown editing utility
  */
 
 import { normalizeCode } from '@/utils/markdown';
 
 /**
- * CODE_REFコメントを置換
+ * Replace CODE_REF comment
  */
 export function replaceCodeRefComment(
   content: string,
   oldComment: string,
   newComment: string
 ): string {
-  // 安全のため完全一致を使用
+  // Use exact match for safety
   const index = content.indexOf(oldComment);
   if (index === -1) {
-    throw new Error(`CODE_REFコメントが見つかりません: ${oldComment}`);
+    throw new Error(`CODE_REF comment not found: ${oldComment}`);
   }
 
   return content.substring(0, index) + newComment + content.substring(index + oldComment.length);
 }
 
 /**
- * CODE_REFコメントの後にコードブロックを挿入
+ * Insert code block after CODE_REF comment
  */
 export function insertCodeBlockAfterComment(
   content: string,
@@ -32,19 +32,19 @@ export function insertCodeBlockAfterComment(
 ): string {
   const commentIndex = content.indexOf(commentMatch);
   if (commentIndex === -1) {
-    throw new Error(`CODE_REFコメントが見つかりません: ${commentMatch}`);
+    throw new Error(`CODE_REF comment not found: ${commentMatch}`);
   }
 
-  // コメントの終了（-->）を検索
+  // Search for comment end (-->)
   const commentEnd = content.indexOf('-->', commentIndex);
   if (commentEnd === -1) {
-    throw new Error('CODE_REFコメントの終了タグが見つかりません');
+    throw new Error('CODE_REF comment end tag not found');
   }
 
-  // コメント後に挿入、次の行にスキップ
+  // Insert after comment, skip to next line
   const insertPosition = commentEnd + 3;
 
-  // コメント後に既にコンテンツがあるかチェック
+  // Check if content already exists after comment
   const afterComment = content.substring(insertPosition, insertPosition + 10);
   const newlinePrefix = afterComment.startsWith('\n') ? '\n' : '\n\n';
 
@@ -54,14 +54,14 @@ export function insertCodeBlockAfterComment(
 }
 
 /**
- * マークダウン内のコードブロックを置換
+ * Replace code block in markdown
  */
 export function replaceCodeBlock(
   content: string,
   oldCodeBlock: string,
   newCodeBlock: string
 ): string {
-  // マークダウン形式でコードブロックを検索
+  // Search for code block in markdown format
   const codeBlockPattern = /```[\w]*\n([\s\S]*?)```/g;
   let match: RegExpExecArray | null;
   let found = false;
@@ -69,13 +69,13 @@ export function replaceCodeBlock(
   while ((match = codeBlockPattern.exec(content)) !== null) {
     const blockContent = match[1];
 
-    // 正規化して比較
+    // Normalize and compare
     if (normalizeCode(blockContent) === normalizeCode(oldCodeBlock)) {
-      // このブロックを置換
+      // Replace this block
       const startIndex = match.index;
       const endIndex = startIndex + match[0].length;
 
-      // 言語識別子を抽出
+      // Extract language identifier
       const langMatch = /```([\w]*)\n/.exec(match[0]);
       const language = langMatch ? langMatch[1] : '';
 
@@ -88,14 +88,14 @@ export function replaceCodeBlock(
   }
 
   if (!found) {
-    throw new Error('一致するコードブロックが見つかりません');
+    throw new Error('No matching code block found');
   }
 
   return content;
 }
 
 /**
- * CODE_REFコメント後のコードブロック位置を検索
+ * Find code block position after CODE_REF comment
  */
 export function findCodeBlockPosition(
   content: string,
@@ -111,7 +111,7 @@ export function findCodeBlockPosition(
     return null;
   }
 
-  // コメント後500文字以内でコードブロックを検索
+  // Search for code block within 500 characters after comment
   const searchStart = commentEnd + 3;
   const searchWindow = content.substring(searchStart, searchStart + 500);
 
@@ -128,62 +128,62 @@ export function findCodeBlockPosition(
 }
 
 /**
- * CODE_REFコメントをコードブロックの直前に移動
+ * Move CODE_REF comment before code block
  *
- * @param content マークダウンファイルの内容
- * @param commentMatch CODE_REFコメントのテキスト
- * @param codeBlockStart コードブロックの開始位置
- * @returns 修正後のマークダウン内容
+ * @param content Markdown file content
+ * @param commentMatch CODE_REF comment text
+ * @param codeBlockStart Code block start position
+ * @returns Modified markdown content
  */
 export function moveCodeRefCommentBeforeCodeBlock(
   content: string,
   commentMatch: string,
   codeBlockStart: number
 ): string {
-  // 1. CODE_REFコメントの位置を特定
+  // 1. Identify CODE_REF comment position
   const commentIndex = content.indexOf(commentMatch);
   if (commentIndex === -1) {
-    throw new Error(`CODE_REFコメントが見つかりません: ${commentMatch}`);
+    throw new Error(`CODE_REF comment not found: ${commentMatch}`);
   }
 
   const commentEnd = content.indexOf('-->', commentIndex);
   if (commentEnd === -1) {
-    throw new Error('CODE_REFコメントの終了タグが見つかりません');
+    throw new Error('CODE_REF comment end tag not found');
   }
 
-  // 2. 削除範囲を決定（前後の改行を含める）
+  // 2. Determine removal range (including surrounding newlines)
   let removalStart = commentIndex;
   let removalEnd = commentEnd + 3;
 
-  // コメントの前に改行がある場合、それも削除
+  // If newline exists before comment, remove it too
   if (commentIndex > 0 && content[commentIndex - 1] === '\n') {
     removalStart = commentIndex - 1;
   }
 
-  // コメントの後の改行を削除（最大2つ）
+  // Remove newlines after comment (max 2)
   let newlinesAfter = 0;
   while (removalEnd < content.length && content[removalEnd] === '\n' && newlinesAfter < 2) {
     removalEnd++;
     newlinesAfter++;
   }
 
-  // 3. コメントを削除
+  // 3. Remove comment
   const contentWithoutComment = content.substring(0, removalStart) + content.substring(removalEnd);
 
-  // 4. 位置調整（削除によるシフト）
+  // 4. Adjust position (shift due to removal)
   const removedLength = removalEnd - removalStart;
   const adjustedCodeBlockStart =
     codeBlockStart > commentIndex ? codeBlockStart - removedLength : codeBlockStart;
 
-  // 5. コードブロックの直前に挿入
+  // 5. Insert before code block
   const beforeCodeBlock = contentWithoutComment.substring(0, adjustedCodeBlockStart);
   const afterCodeBlock = contentWithoutComment.substring(adjustedCodeBlockStart);
 
-  // コメントの前に適切な改行を追加
+  // Add appropriate newline before comment
   const needsNewlineBefore = beforeCodeBlock.length > 0 && !beforeCodeBlock.endsWith('\n\n');
   const prefix = needsNewlineBefore ? '\n' : '';
 
-  // コメントとコードブロックの間に1つの改行
+  // One newline between comment and code block
   const commentWithNewline = `${prefix}${commentMatch}\n`;
 
   return beforeCodeBlock + commentWithNewline + afterCodeBlock;

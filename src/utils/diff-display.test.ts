@@ -6,8 +6,8 @@ describe('displayCodeDiff', () => {
     const result = displayCodeDiff(code, code);
 
     // ヘッダーとフッターが含まれることを確認
-    expect(result).toContain('期待されるコード');
-    expect(result).toContain('実際のコード');
+    expect(result).toContain('Expected code');
+    expect(result).toContain('Actual code');
     // 差分マーカー（- や +）がないことを確認
     expect(result.split('\n').filter((line) => line.startsWith('-')).length).toBe(0);
     expect(result.split('\n').filter((line) => line.startsWith('+')).length).toBe(0);
@@ -55,8 +55,8 @@ describe('displayLineRangeDiff', () => {
     const result = displayLineRangeDiff(code, expectedRange, actualRange);
 
     // ヘッダーが含まれることを確認
-    expect(result).toContain('期待される行範囲: 10-11');
-    expect(result).toContain('実際の行範囲: 15-16');
+    expect(result).toContain('Expected line range: 10-11');
+    expect(result).toContain('Actual line range: 15-16');
 
     // 行番号が表示されることを確認（ANSIカラーコードを含む形式）
     expect(result).toContain('10');
@@ -75,8 +75,8 @@ describe('displayLineRangeDiff', () => {
     const actualRange = { start: 10, end: 10 };
     const result = displayLineRangeDiff(code, expectedRange, actualRange);
 
-    expect(result).toContain('期待される行範囲: 5-5');
-    expect(result).toContain('実際の行範囲: 10-10');
+    expect(result).toContain('Expected line range: 5-5');
+    expect(result).toContain('Actual line range: 10-10');
     expect(result).toContain('5');
     expect(result).toContain('10');
     expect(result).toContain('const foo = "bar";');

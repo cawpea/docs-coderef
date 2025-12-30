@@ -36,7 +36,7 @@ Some text`;
           '<!-- CODE_REF: src/file.ts:10-20 -->',
           '<!-- CODE_REF: src/file.ts:15-25 -->'
         );
-      }).toThrow('CODE_REFコメントが見つかりません');
+      }).toThrow('CODE_REF comment not found');
     });
 
     it('複数のCODE_REFコメントがある場合、最初のマッチを置換すること', () => {
@@ -98,7 +98,7 @@ Some text`;
           '<!-- CODE_REF: src/file.ts:10-20 -->',
           'const x = 1;'
         );
-      }).toThrow('CODE_REFコメントが見つかりません');
+      }).toThrow('CODE_REF comment not found');
     });
 
     it('CODE_REFコメントの終了タグがない場合、エラーをスローすること', () => {
@@ -106,7 +106,7 @@ Some text`;
 
       expect(() => {
         insertCodeBlockAfterComment(content, '<!-- CODE_REF: src/file.ts:10-20', 'const x = 1;');
-      }).toThrow('CODE_REFコメントの終了タグが見つかりません');
+      }).toThrow('CODE_REF comment end tag not found');
     });
 
     it('コメント後にコンテンツがある場合、適切に改行を挿入すること', () => {
@@ -157,7 +157,7 @@ const x = 1;
 
       expect(() => {
         replaceCodeBlock(content, 'const z = 3;', 'const y = 2;');
-      }).toThrow('一致するコードブロックが見つかりません');
+      }).toThrow('No matching code block found');
     });
 
     it('言語識別子を保持すること', () => {
@@ -287,7 +287,7 @@ const x = 1;
 
       expect(() => {
         moveCodeRefCommentBeforeCodeBlock(content, '<!-- CODE_REF: src/file.ts:10-20 -->', 10);
-      }).toThrow('CODE_REFコメントが見つかりません');
+      }).toThrow('CODE_REF comment not found');
     });
 
     it('CODE_REFコメントの終了タグがない場合、エラーをスローすること', () => {
@@ -299,7 +299,7 @@ const x = 1;
 
       expect(() => {
         moveCodeRefCommentBeforeCodeBlock(content, '<!-- CODE_REF: src/file.ts:10-20', 50);
-      }).toThrow('CODE_REFコメントの終了タグが見つかりません');
+      }).toThrow('CODE_REF comment end tag not found');
     });
 
     it('コメントがコードブロックの直前にある場合も正しく処理すること', () => {

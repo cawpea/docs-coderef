@@ -268,7 +268,7 @@ function tryASTExpansion(
   } catch (error) {
     if (error instanceof Error) {
       if (error.name === 'SyntaxError' || error.message.includes('Unexpected token')) {
-        return { success: false, error: `構文エラー: ${error.message}` };
+        return { success: false, error: `Syntax error: ${error.message}` };
       }
       return { success: false, error: error.message };
     }
@@ -293,7 +293,7 @@ export function expandMatchToScope(options: MatchExpansionOptions): ExpandedMatc
   }
 
   // AST解析が失敗した場合、元のマッチを返す（フォールバック）
-  console.warn(`⚠️  AST解析失敗: ${astResult.error}`);
+  console.warn(`⚠️  AST parsing failed: ${astResult.error}`);
   return [
     {
       start: originalMatch.start,

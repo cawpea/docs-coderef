@@ -1,5 +1,5 @@
 /**
- * 対話的CLIプロンプトユーティリティ
+ * Interactive CLI prompt utility
  */
 
 import * as fs from 'fs';
@@ -11,7 +11,7 @@ import { displayCodeDiff, displayLineRangeDiff } from '@/utils/diff-display';
 import type { FixAction } from '@/utils/types';
 
 /**
- * Readlineインターフェースを作成
+ * Create readline interface
  */
 export function createPromptInterface(): readline.Interface {
   return readline.createInterface({
@@ -21,7 +21,7 @@ export function createPromptInterface(): readline.Interface {
 }
 
 /**
- * Yes/No質問
+ * Yes/No question
  */
 export async function askYesNo(
   rl: readline.Interface,
@@ -39,7 +39,7 @@ export async function askYesNo(
 }
 
 /**
- * 質問して回答を取得
+ * Ask question and get answer
  */
 export function askQuestion(rl: readline.Interface, question: string): Promise<string> {
   return new Promise((resolve) => {
@@ -50,8 +50,8 @@ export function askQuestion(rl: readline.Interface, question: string): Promise<s
 }
 
 /**
- * 複数のオプションから選択
- * @returns 選択されたオプションのインデックス（0-based）
+ * Select from multiple options
+ * @returns Index of selected option (0-based)
  */
 export async function askSelectOption(
   rl: readline.Interface,
@@ -64,34 +64,34 @@ export async function askSelectOption(
   });
 
   while (true) {
-    const answer = await askQuestion(rl, `選択してください (1-${options.length}): `);
+    const answer = await askQuestion(rl, `Select (1-${options.length}): `);
 
     const selection = parseInt(answer.trim(), 10);
     if (selection >= 1 && selection <= options.length) {
       return selection - 1;
     }
 
-    console.log('❌ 無効な選択です。もう一度入力してください。');
+    console.log('❌ Invalid selection. Please try again.');
   }
 }
 
 /**
- * 修正プレビューを表示
+ * Display fix preview
  */
 export function displayFixPreview(action: FixAction): void {
-  console.log('\n変更内容:');
-  console.log(`- 説明: ${action.description}`);
+  console.log('\nChanges:');
+  console.log(`- Description: ${action.description}`);
 
-  // エラータイプに応じて色付き差分を表示
+  // Display colored diff based on error type
   const { error } = action;
   const projectRoot = path.resolve(__dirname, '../../..');
   const absolutePath = path.resolve(projectRoot, error.ref.refPath);
 
   switch (error.type) {
     case 'CODE_LOCATION_MISMATCH': {
-      // 行番号の差分を表示
+      // Display line number diff
       if (error.ref.codeBlock && action.newStartLine && action.newEndLine) {
-        // コードブロックが存在する場合、実際のコードを取得
+        // If code block exists, get actual code
         const actualCode = extractLinesFromFile(
           absolutePath,
           action.newStartLine,
@@ -111,14 +111,14 @@ export function displayFixPreview(action: FixAction): void {
         );
         console.log(diff);
       } else {
-        // コードブロックがない場合はシンプルなプレビュー
+        // Simple preview if no code block
         console.log(action.preview);
       }
       break;
     }
 
     case 'CODE_CONTENT_MISMATCH': {
-      // コード内容の差分を表示
+      // Display code content diff
       if (error.expectedCode && action.newCodeBlock) {
         const diff = displayCodeDiff(error.expectedCode, action.newCodeBlock);
         console.log(diff);
@@ -129,9 +129,9 @@ export function displayFixPreview(action: FixAction): void {
     }
 
     case 'INSERT_CODE_BLOCK': {
-      // 新規挿入の場合、挿入されるコードをシンプルに表示
+      // For new insertion, simply display the code to be inserted
       if (action.newCodeBlock) {
-        console.log('\x1b[32m+ コードブロックを挿入:\x1b[0m');
+        console.log('\x1b[32m+ Insert code block:\x1b[0m');
         console.log('\x1b[2m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m');
         const lines = action.newCodeBlock.split('\n');
         lines.forEach((line) => {
@@ -145,7 +145,7 @@ export function displayFixPreview(action: FixAction): void {
     }
 
     case 'REPLACE_CODE_BLOCK': {
-      // コードブロックの置換の場合、CODE_CONTENT_MISMATCHと同じ処理
+      // For code block replacement, same processing as CODE_CONTENT_MISMATCH
       if (error.expectedCode && action.newCodeBlock) {
         const diff = displayCodeDiff(error.expectedCode, action.newCodeBlock);
         console.log(diff);
@@ -157,7 +157,7 @@ export function displayFixPreview(action: FixAction): void {
 
     case 'UPDATE_LINE_NUMBERS':
     case 'UPDATE_END_LINE': {
-      // 行番号更新の場合、コメントの変更を表示
+      // For line number update, display comment change
       const oldComment = error.ref.fullMatch;
       const newComment = `<!-- CODE_REF: ${error.ref.refPath}:${action.newStartLine}-${action.newEndLine} -->`;
 
@@ -166,10 +166,10 @@ export function displayFixPreview(action: FixAction): void {
       console.log(`\x1b[32m+ ${newComment}\x1b[0m`);
       console.log('\x1b[2m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m');
 
-      // コードブロックも存在する場合は内容も表示
+      // If code block also exists, display content
       if (action.newCodeBlock && fs.existsSync(absolutePath)) {
-        console.log('\nコードブロック内容:');
-        const lines = action.newCodeBlock.split('\n').slice(0, 10); // 最初の10行
+        console.log('\nCode block content:');
+        const lines = action.newCodeBlock.split('\n').slice(0, 10); // First 10 lines
         lines.forEach((line) => {
           console.log(`  ${line}`);
         });
@@ -181,7 +181,7 @@ export function displayFixPreview(action: FixAction): void {
     }
 
     default: {
-      // その他の場合は従来のプレビューを表示
+      // For other cases, display default preview
       if (action.preview) {
         console.log(action.preview);
       }

@@ -228,19 +228,19 @@ describe('code-ellipsis', () => {
     it('省略記号を含む行を削除すること', () => {
       const code = `export class TestClass {
 
-  // ... (省略) ...
+  // ... (omitted) ...
 
   targetMethod() {
     console.log('target');
   }
 
-  // ... (省略) ...
+  // ... (omitted) ...
 
 }`;
 
       const result = removeEllipsis(code);
 
-      expect(result).not.toContain('// ... (省略) ...');
+      expect(result).not.toContain('// ... (omitted) ...');
       expect(result).toContain('targetMethod()');
       expect(result).toContain('export class TestClass {');
     });
@@ -268,7 +268,7 @@ describe('code-ellipsis', () => {
 
       const result = removeEllipsis(code);
 
-      expect(result).not.toContain('// ... (省略) ...');
+      expect(result).not.toContain('// ... (omitted) ...');
       expect(result).toContain('method1()');
       expect(result).toContain('method2()');
     });

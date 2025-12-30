@@ -180,7 +180,7 @@ describe('prompt', () => {
       const result = await askSelectOption(mockRl, options, 'Choose:');
 
       expect(result).toBe(0);
-      expect(consoleLogSpy).toHaveBeenCalledWith('❌ 無効な選択です。もう一度入力してください。');
+      expect(consoleLogSpy).toHaveBeenCalledWith('❌ Invalid selection. Please try again.');
 
       consoleLogSpy.mockRestore();
     });
@@ -202,7 +202,7 @@ describe('prompt', () => {
       const result = await askSelectOption(mockRl, options, 'Choose:');
 
       expect(result).toBe(0);
-      expect(consoleLogSpy).toHaveBeenCalledWith('❌ 無効な選択です。もう一度入力してください。');
+      expect(consoleLogSpy).toHaveBeenCalledWith('❌ Invalid selection. Please try again.');
 
       consoleLogSpy.mockRestore();
     });
@@ -241,8 +241,8 @@ describe('prompt', () => {
 
       displayFixPreview(action);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith('\n変更内容:');
-      expect(consoleLogSpy).toHaveBeenCalledWith('- 説明: Update line numbers');
+      expect(consoleLogSpy).toHaveBeenCalledWith('\nChanges:');
+      expect(consoleLogSpy).toHaveBeenCalledWith('- Description: Update line numbers');
     });
 
     it('INSERT_CODE_BLOCKタイプの修正プレビューを表示すること', () => {
@@ -266,9 +266,9 @@ describe('prompt', () => {
 
       displayFixPreview(action);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith('\n変更内容:');
-      expect(consoleLogSpy).toHaveBeenCalledWith('- 説明: Insert code block');
-      expect(consoleLogSpy).toHaveBeenCalledWith('\x1b[32m+ コードブロックを挿入:\x1b[0m');
+      expect(consoleLogSpy).toHaveBeenCalledWith('\nChanges:');
+      expect(consoleLogSpy).toHaveBeenCalledWith('- Description: Insert code block');
+      expect(consoleLogSpy).toHaveBeenCalledWith('\x1b[32m+ Insert code block:\x1b[0m');
     });
 
     it('CODE_CONTENT_MISMATCHタイプの修正プレビューを表示すること', () => {
@@ -294,8 +294,8 @@ describe('prompt', () => {
 
       displayFixPreview(action);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith('\n変更内容:');
-      expect(consoleLogSpy).toHaveBeenCalledWith('- 説明: Replace code block');
+      expect(consoleLogSpy).toHaveBeenCalledWith('\nChanges:');
+      expect(consoleLogSpy).toHaveBeenCalledWith('- Description: Replace code block');
     });
 
     it('CODE_LOCATION_MISMATCHタイプの修正プレビューを表示すること（コードブロックなし）', () => {
@@ -318,8 +318,8 @@ describe('prompt', () => {
 
       displayFixPreview(action);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith('\n変更内容:');
-      expect(consoleLogSpy).toHaveBeenCalledWith('- 説明: Update line numbers');
+      expect(consoleLogSpy).toHaveBeenCalledWith('\nChanges:');
+      expect(consoleLogSpy).toHaveBeenCalledWith('- Description: Update line numbers');
       expect(consoleLogSpy).toHaveBeenCalledWith('Simple preview text');
     });
 
@@ -346,8 +346,8 @@ describe('prompt', () => {
 
       displayFixPreview(action);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith('\n変更内容:');
-      expect(consoleLogSpy).toHaveBeenCalledWith('- 説明: Replace code block');
+      expect(consoleLogSpy).toHaveBeenCalledWith('\nChanges:');
+      expect(consoleLogSpy).toHaveBeenCalledWith('- Description: Replace code block');
     });
 
     it('UPDATE_END_LINEタイプの修正プレビューを表示すること', () => {
@@ -375,8 +375,8 @@ describe('prompt', () => {
 
       displayFixPreview(action);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith('\n変更内容:');
-      expect(consoleLogSpy).toHaveBeenCalledWith('- 説明: Update end line number');
+      expect(consoleLogSpy).toHaveBeenCalledWith('\nChanges:');
+      expect(consoleLogSpy).toHaveBeenCalledWith('- Description: Update end line number');
     });
   });
 });

@@ -1,5 +1,5 @@
 /**
- * コード省略表示ユーティリティ
+ * Code ellipsis display utility
  */
 
 import * as fs from 'fs';
@@ -9,10 +9,10 @@ import type { TSESTree } from '@typescript-eslint/typescript-estree';
 
 import { isTypeScriptOrJavaScript } from '@/utils/ast-symbol-search';
 
-const ELLIPSIS = '  // ... (省略) ...';
+const ELLIPSIS = '  // ... (omitted) ...';
 
 /**
- * クラスメンバー情報
+ * Class member information
  */
 interface ClassMember {
   name: string;
@@ -22,7 +22,7 @@ interface ClassMember {
 }
 
 /**
- * ASTからクラスノードを検索
+ * Find class node from AST
  */
 function findClassNode(fileContent: string, className: string): TSESTree.ClassDeclaration | null {
   const ast = parseTypeScript(fileContent, {
@@ -36,7 +36,7 @@ function findClassNode(fileContent: string, className: string): TSESTree.ClassDe
       return node;
     }
 
-    // 子ノードを再帰的に探索
+    // Recursively explore child nodes
     const keys = Object.keys(node) as (keyof TSESTree.Node)[];
     for (const key of keys) {
       const value = node[key];
@@ -62,7 +62,7 @@ function findClassNode(fileContent: string, className: string): TSESTree.ClassDe
 }
 
 /**
- * クラス内のメンバーを取得
+ * Get members in class
  */
 function getClassMembers(classNode: TSESTree.ClassDeclaration): ClassMember[] {
   const members: ClassMember[] = [];
@@ -104,16 +104,16 @@ function getClassMembers(classNode: TSESTree.ClassDeclaration): ClassMember[] {
 }
 
 /**
- * JSDocコメントを含む開始行を取得
+ * Get start line including JSDoc comment
  */
 function getStartLineWithJSDoc(startLine: number, lines: string[]): number {
-  // 開始行の直前から上に向かってJSDocを探す
+  // Search for JSDoc upward from before start line
   for (let i = startLine - 2; i >= 0; i--) {
     const line = lines[i].trim();
 
-    // JSDocの終わり（*/）を見つけた場合
+    // If found JSDoc end (*/)
     if (line.endsWith('*/')) {
-      // さらに上に向かってJSDocの始まり（/**）を探す
+      // Search further upward for JSDoc start (/**)
       for (let j = i; j >= 0; j--) {
         const docLine = lines[j].trim();
         if (docLine.startsWith('/**')) {
@@ -123,7 +123,7 @@ function getStartLineWithJSDoc(startLine: number, lines: string[]): number {
       break;
     }
 
-    // 空行やコメントでない行が見つかったら終了
+    // End if found non-empty, non-comment line
     if (line.length > 0 && !line.startsWith('//')) {
       break;
     }
@@ -133,7 +133,7 @@ function getStartLineWithJSDoc(startLine: number, lines: string[]): number {
 }
 
 /**
- * コードに省略記号を挿入
+ * Insert ellipsis in code
  */
 export function insertEllipsis(
   filePath: string,
@@ -142,7 +142,7 @@ export function insertEllipsis(
     memberName: string;
   }
 ): string {
-  // TypeScript/JavaScriptファイルのみ
+  // Only TypeScript/JavaScript files
   if (!isTypeScriptOrJavaScript(filePath)) {
     throw new Error('TypeScript/JavaScript files only');
   }
@@ -151,21 +151,21 @@ export function insertEllipsis(
   const lines = fileContent.split('\n');
 
   if (options.className) {
-    // クラス内のメソッドのみ表示
+    // Display only methods in class
     const classNode = findClassNode(fileContent, options.className);
     if (!classNode?.loc) {
-      // クラスが見つからない場合は元のファイル内容を返す
+      // If class not found, return original file content
       return fileContent;
     }
 
     const result: string[] = [];
     const members = getClassMembers(classNode);
 
-    // クラス宣言行を取得（export class ClassName { の行）
+    // Get class declaration line (export class ClassName { line)
     const classStartLine = classNode.loc.start.line;
     const classEndLine = classNode.loc.end.line;
 
-    // クラス宣言の開始行を追加
+    // Add class declaration start line
     result.push(lines[classStartLine - 1]);
 
     let lastEndLine = classStartLine;
@@ -173,10 +173,10 @@ export function insertEllipsis(
 
     for (const member of members) {
       if (member.name === options.memberName) {
-        // ターゲットメソッド: JSDocコメントを含めて完全に表示
+        // Target method: Display fully including JSDoc comment
         const memberStartWithJSDoc = getStartLineWithJSDoc(member.startLine, lines);
 
-        // 前のメンバーとの間に省略記号を挿入（まだ追加していない場合）
+        // Insert ellipsis between previous member (if not yet added)
         if (lastEndLine < memberStartWithJSDoc && !hasAddedEllipsis) {
           result.push('');
           result.push(ELLIPSIS);
@@ -184,7 +184,7 @@ export function insertEllipsis(
           hasAddedEllipsis = true;
         }
 
-        // ターゲットメソッドを追加
+        // Add target method
         for (let i = memberStartWithJSDoc - 1; i < member.endLine; i++) {
           result.push(lines[i]);
         }
@@ -192,7 +192,7 @@ export function insertEllipsis(
         lastEndLine = member.endLine;
         hasAddedEllipsis = false;
       } else {
-        // 他のメンバー: 省略（省略記号は一度だけ追加）
+        // Other members: Omit (ellipsis added only once)
         if (!hasAddedEllipsis && lastEndLine < member.endLine) {
           hasAddedEllipsis = true;
         }
@@ -200,31 +200,31 @@ export function insertEllipsis(
       }
     }
 
-    // 最後のメンバーの後に省略記号を追加（必要な場合）
+    // Add ellipsis after last member (if needed)
     if (hasAddedEllipsis && lastEndLine < classEndLine - 1) {
       result.push('');
       result.push(ELLIPSIS);
       result.push('');
     }
 
-    // クラスの閉じ括弧を追加
+    // Add class closing bracket
     result.push(lines[classEndLine - 1]);
 
     return result.join('\n');
   } else {
-    // 関数のみ表示（前後のコンテキストは省略）
-    // この場合は、シンボル検索で見つかった範囲のみを返す
-    // 実装が必要な場合は追加
+    // Display function only (omit surrounding context)
+    // In this case, return only the range found by symbol search
+    // Add if implementation needed
     return fileContent;
   }
 }
 
 /**
- * 省略表示されたコードから省略記号を除去
+ * Remove ellipsis from ellipsis-displayed code
  */
 export function removeEllipsis(code: string): string {
   return code
     .split('\n')
-    .filter((line) => !line.trim().includes('// ... (省略) ...'))
+    .filter((line) => !line.trim().includes('// ... (omitted) ...'))
     .join('\n');
 }
