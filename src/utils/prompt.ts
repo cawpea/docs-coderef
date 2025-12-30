@@ -79,8 +79,7 @@ export async function askSelectOption(
  * Display fix preview
  */
 export function displayFixPreview(action: FixAction, projectRoot: string): void {
-  console.log('\nChanges:');
-  console.log(`- Description: ${action.description}`);
+  console.log(`\nChanges: ${action.description}`);
 
   // Display colored diff based on error type
   const { error } = action;
