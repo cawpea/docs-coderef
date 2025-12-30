@@ -45,6 +45,7 @@ export type {
   FixOptions,
   FixResult,
   ExpandedMatch,
+  GitExecOptions,
 } from '@/utils/types';
 
 // Utility functions
