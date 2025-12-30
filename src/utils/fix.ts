@@ -18,6 +18,7 @@ import {
 } from '@/utils/markdown-edit';
 import { askSelectOption } from '@/utils/prompt';
 import type { CodeRefError, ExpandedMatch, FixAction } from '@/utils/types';
+import type { CodeRefConfig } from '@/config';
 
 /**
  * Check if error is fixable
@@ -36,7 +37,7 @@ export function isFixableError(error: CodeRefError): boolean {
 /**
  * Create fix action for CODE_LOCATION_MISMATCH
  */
-export function createLocationMismatchFix(error: CodeRefError): FixAction {
+export function createLocationMismatchFix(error: CodeRefError, config: CodeRefConfig): FixAction {
   if (!error.suggestedLines) {
     throw new Error('CODE_LOCATION_MISMATCH requires suggestedLines');
   }
@@ -46,7 +47,7 @@ export function createLocationMismatchFix(error: CodeRefError): FixAction {
   const newComment = `<!-- CODE_REF: ${ref.refPath}:${error.suggestedLines.start}-${error.suggestedLines.end} -->`;
 
   // Get actual code for preview
-  const projectRoot = path.resolve(__dirname, '../../..');
+  const projectRoot = config.projectRoot;
   const absolutePath = path.resolve(projectRoot, ref.refPath);
   const actualCode = extractLinesFromFile(
     absolutePath,
@@ -130,7 +131,7 @@ function createMoveCommentFix(
 /**
  * Create fix action for CODE_BLOCK_MISSING
  */
-export function createBlockMissingFix(error: CodeRefError): FixAction {
+export function createBlockMissingFix(error: CodeRefError, config: CodeRefConfig): FixAction {
   const { ref } = error;
 
   // 0. Early return for whole file reference (no code block needed)
@@ -150,7 +151,7 @@ export function createBlockMissingFix(error: CodeRefError): FixAction {
   }
 
   // 2. Code block not found → existing logic (insert)
-  const projectRoot = path.resolve(__dirname, '../../..');
+  const projectRoot = config.projectRoot;
   const absolutePath = path.resolve(projectRoot, ref.refPath);
 
   // Only symbol specified without line numbers
@@ -212,9 +213,12 @@ export function createBlockMissingFix(error: CodeRefError): FixAction {
 /**
  * Create fix action for CODE_CONTENT_MISMATCH
  */
-export function createContentMismatchFix(error: CodeRefError): FixAction | FixAction[] {
+export function createContentMismatchFix(
+  error: CodeRefError,
+  config: CodeRefConfig
+): FixAction | FixAction[] {
   const { ref } = error;
-  const projectRoot = path.resolve(__dirname, '../../..');
+  const projectRoot = config.projectRoot;
   const absolutePath = path.resolve(projectRoot, ref.refPath);
 
   // When only symbol is specified (no line numbers): return multiple options
@@ -413,6 +417,7 @@ export async function createMultipleSymbolsFoundFix(
  */
 export async function createFixAction(
   error: CodeRefError,
+  config: CodeRefConfig,
   rl?: readline.Interface
 ): Promise<FixAction | FixAction[] | null> {
   if (!isFixableError(error)) {
@@ -421,11 +426,11 @@ export async function createFixAction(
 
   switch (error.type) {
     case 'CODE_LOCATION_MISMATCH':
-      return createLocationMismatchFix(error);
+      return createLocationMismatchFix(error, config);
     case 'CODE_BLOCK_MISSING':
-      return createBlockMissingFix(error);
+      return createBlockMissingFix(error, config);
     case 'CODE_CONTENT_MISMATCH':
-      return createContentMismatchFix(error);
+      return createContentMismatchFix(error, config);
     case 'LINE_OUT_OF_RANGE':
       return createLineOutOfRangeFix(error);
     case 'SYMBOL_RANGE_MISMATCH':
@@ -561,7 +566,8 @@ function prioritizeMatchesWithConfidence(
  */
 export async function handleMultipleMatches(
   error: CodeRefError,
-  rl: readline.Interface
+  rl: readline.Interface,
+  config: CodeRefConfig
 ): Promise<FixAction | null> {
   const { ref } = error;
 
@@ -569,7 +575,7 @@ export async function handleMultipleMatches(
     return null;
   }
 
-  const projectRoot = path.resolve(__dirname, '../../..');
+  const projectRoot = config.projectRoot;
   const absolutePath = path.resolve(projectRoot, ref.refPath);
 
   // Use AST analysis with scope expansion

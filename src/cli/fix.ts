@@ -134,9 +134,9 @@ export async function main(): Promise<void> {
 
         if (error.type === 'CODE_LOCATION_MISMATCH') {
           // Handle multiple matches
-          action = await handleMultipleMatches(error, rl);
+          action = await handleMultipleMatches(error, rl, config);
         } else {
-          const fixActionResult = await createFixAction(error, rl);
+          const fixActionResult = await createFixAction(error, config, rl);
 
           // If there are multiple options, let the user choose
           if (Array.isArray(fixActionResult)) {
@@ -188,7 +188,7 @@ export async function main(): Promise<void> {
 
         // Display preview (only for single option)
         if (!Array.isArray(action)) {
-          displayFixPreview(action);
+          displayFixPreview(action, config.projectRoot);
         }
 
         // Confirmation

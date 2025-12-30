@@ -210,6 +210,7 @@ describe('prompt', () => {
 
   describe('displayFixPreview', () => {
     let consoleLogSpy: any;
+    const testProjectRoot = '/tmp/test-project';
 
     beforeEach(() => {
       consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
@@ -239,7 +240,7 @@ describe('prompt', () => {
         newEndLine: 25,
       };
 
-      displayFixPreview(action);
+      displayFixPreview(action, testProjectRoot);
 
       expect(consoleLogSpy).toHaveBeenCalledWith('\nChanges:');
       expect(consoleLogSpy).toHaveBeenCalledWith('- Description: Update line numbers');
@@ -264,7 +265,7 @@ describe('prompt', () => {
         newCodeBlock: 'const x = 1;',
       };
 
-      displayFixPreview(action);
+      displayFixPreview(action, testProjectRoot);
 
       expect(consoleLogSpy).toHaveBeenCalledWith('\nChanges:');
       expect(consoleLogSpy).toHaveBeenCalledWith('- Description: Insert code block');
@@ -292,7 +293,7 @@ describe('prompt', () => {
         newCodeBlock: 'const y = 2;',
       };
 
-      displayFixPreview(action);
+      displayFixPreview(action, testProjectRoot);
 
       expect(consoleLogSpy).toHaveBeenCalledWith('\nChanges:');
       expect(consoleLogSpy).toHaveBeenCalledWith('- Description: Replace code block');
@@ -316,7 +317,7 @@ describe('prompt', () => {
         preview: 'Simple preview text',
       };
 
-      displayFixPreview(action);
+      displayFixPreview(action, testProjectRoot);
 
       expect(consoleLogSpy).toHaveBeenCalledWith('\nChanges:');
       expect(consoleLogSpy).toHaveBeenCalledWith('- Description: Update line numbers');
@@ -344,7 +345,7 @@ describe('prompt', () => {
         newCodeBlock: 'new code',
       };
 
-      displayFixPreview(action);
+      displayFixPreview(action, testProjectRoot);
 
       expect(consoleLogSpy).toHaveBeenCalledWith('\nChanges:');
       expect(consoleLogSpy).toHaveBeenCalledWith('- Description: Replace code block');
@@ -373,7 +374,7 @@ describe('prompt', () => {
         newCodeBlock: 'const x = 1;\nconst y = 2;\nconst z = 3;',
       };
 
-      displayFixPreview(action);
+      displayFixPreview(action, testProjectRoot);
 
       expect(consoleLogSpy).toHaveBeenCalledWith('\nChanges:');
       expect(consoleLogSpy).toHaveBeenCalledWith('- Description: Update end line number');

@@ -3,6 +3,7 @@
  */
 
 import * as fs from 'fs';
+import * as path from 'path';
 import type * as readline from 'readline';
 
 import { extractLinesFromFile, searchCodeInFileWithScopeExpansion } from '@/utils/code-comparison';
@@ -21,6 +22,7 @@ import {
 import * as markdownEdit from '@/utils/markdown-edit';
 import * as prompt from '@/utils/prompt';
 import type { CodeRefError, FixAction } from '@/utils/types';
+import type { CodeRefConfig } from '@/config';
 
 // モック設定
 jest.mock('fs');
@@ -43,6 +45,14 @@ const mockSearchCodeInFileWithScopeExpansion =
   >;
 const mockMarkdownEdit = markdownEdit as jest.Mocked<typeof markdownEdit>;
 const mockPrompt = prompt as jest.Mocked<typeof prompt>;
+
+// Mock config for tests
+const mockConfig: CodeRefConfig = {
+  projectRoot: path.resolve(__dirname, '../../..'),
+  docsDir: 'docs',
+  ignoreFile: '.docsignore',
+  verbose: false,
+};
 
 describe('isFixableError', () => {
   it('修正可能なエラータイプの場合にtrueを返すこと', () => {
@@ -101,7 +111,7 @@ describe('createLocationMismatchFix', () => {
 
     mockExtractLinesFromFile.mockReturnValue('code content');
 
-    const result = createLocationMismatchFix(error);
+    const result = createLocationMismatchFix(error, mockConfig);
 
     expect(result).toEqual({
       type: 'UPDATE_LINE_NUMBERS',
@@ -128,7 +138,7 @@ describe('createLocationMismatchFix', () => {
       },
     };
 
-    expect(() => createLocationMismatchFix(error)).toThrow(
+    expect(() => createLocationMismatchFix(error, mockConfig)).toThrow(
       'CODE_LOCATION_MISMATCH requires suggestedLines'
     );
   });
@@ -159,7 +169,7 @@ describe('createBlockMissingFix', () => {
     );
     mockExtractLinesFromFile.mockReturnValue('code content');
 
-    const result = createBlockMissingFix(error);
+    const result = createBlockMissingFix(error, mockConfig);
 
     expect(result).toEqual({
       type: 'INSERT_CODE_BLOCK',
@@ -184,7 +194,7 @@ describe('createBlockMissingFix', () => {
       },
     };
 
-    expect(() => createBlockMissingFix(error)).toThrow(
+    expect(() => createBlockMissingFix(error, mockConfig)).toThrow(
       'Whole file reference does not need code block'
     );
   });
@@ -218,7 +228,7 @@ describe('createContentMismatchFix', () => {
     const astScopeExpansion = require('./ast-scope-expansion'); // eslint-disable-line
     astScopeExpansion.expandMatchToScope = jest.fn().mockReturnValue([]);
 
-    const result = createContentMismatchFix(error) as FixAction;
+    const result = createContentMismatchFix(error, mockConfig) as FixAction;
 
     expect(result.type).toBe('REPLACE_CODE_BLOCK');
     expect(result.newCodeBlock).toBe('actual code');
@@ -254,7 +264,7 @@ describe('createContentMismatchFix', () => {
       },
     ]);
 
-    const result = createContentMismatchFix(error) as FixAction;
+    const result = createContentMismatchFix(error, mockConfig) as FixAction;
 
     expect(result.type).toBe('UPDATE_LINE_NUMBERS');
     expect(result.newStartLine).toBe(8);
@@ -430,7 +440,7 @@ describe('createFixAction', () => {
       ref: {} as any,
     };
 
-    const result = await createFixAction(error);
+    const result = await createFixAction(error, mockConfig);
 
     expect(result).toBeNull();
   });
@@ -452,7 +462,7 @@ describe('createFixAction', () => {
 
     mockExtractLinesFromFile.mockReturnValue('code content');
 
-    const result = (await createFixAction(error)) as FixAction;
+    const result = (await createFixAction(error, mockConfig)) as FixAction;
 
     expect(result?.type).toBe('UPDATE_LINE_NUMBERS');
   });
@@ -473,7 +483,7 @@ describe('createFixAction', () => {
       ],
     };
 
-    await expect(createFixAction(error)).rejects.toThrow(
+    await expect(createFixAction(error, mockConfig)).rejects.toThrow(
       'MULTIPLE_SYMBOLS_FOUND requires readline.Interface'
     );
   });
@@ -521,7 +531,7 @@ describe('優先順位付けロジック', () => {
         { start: 15, end: 25, confidence: 'high', expansionType: 'ast', scopeType: 'function' },
       ]);
 
-      const result = await handleMultipleMatches(error, rl);
+      const result = await handleMultipleMatches(error, rl, mockConfig);
 
       expect(result).not.toBeNull();
       expect(result?.newStartLine).toBe(15);
@@ -545,7 +555,7 @@ describe('優先順位付けロジック', () => {
         { start: 100, end: 110, confidence: 'low', expansionType: 'none', scopeType: 'unknown' },
       ]);
 
-      const result = await handleMultipleMatches(error, rl);
+      const result = await handleMultipleMatches(error, rl, mockConfig);
 
       expect(result).not.toBeNull();
       expect(result?.newStartLine).toBe(10);
@@ -565,7 +575,7 @@ describe('優先順位付けロジック', () => {
         { start: 50, end: 60, confidence: 'medium', expansionType: 'none', scopeType: 'unknown' }, // 40行離れている
       ]);
 
-      const result = await handleMultipleMatches(error, rl);
+      const result = await handleMultipleMatches(error, rl, mockConfig);
 
       expect(result).not.toBeNull();
       // ソート後の配列から選択される（モックのreadlineが選択）
@@ -584,7 +594,7 @@ describe('優先順位付けロジック', () => {
         { start: 14, end: 24, confidence: 'high', expansionType: 'ast', scopeType: 'const' },
       ]);
 
-      const result = await handleMultipleMatches(error, rl);
+      const result = await handleMultipleMatches(error, rl, mockConfig);
 
       expect(result).not.toBeNull();
       // 複数のhigh信頼度マッチがあり、その中でスコープタイプの優先度が高いマッチが自動選択される
@@ -604,7 +614,7 @@ describe('優先順位付けロジック', () => {
         { start: 100, end: 110, confidence: 'high', expansionType: 'ast', scopeType: 'interface' }, // 遠いが高信頼度
       ]);
 
-      const result = await handleMultipleMatches(error, rl);
+      const result = await handleMultipleMatches(error, rl, mockConfig);
 
       expect(result).not.toBeNull();
       // 高信頼度が1つだけなので自動選択される
@@ -618,7 +628,7 @@ describe('優先順位付けロジック', () => {
 
       mockSearchCodeInFileWithScopeExpansion.mockReturnValue([]);
 
-      const result = await handleMultipleMatches(error, rl);
+      const result = await handleMultipleMatches(error, rl, mockConfig);
 
       expect(result).toBeNull();
     });
@@ -638,7 +648,7 @@ describe('優先順位付けロジック', () => {
       };
       const rl = createMockReadline();
 
-      const result = await handleMultipleMatches(error, rl);
+      const result = await handleMultipleMatches(error, rl, mockConfig);
 
       expect(result).toBeNull();
       expect(mockSearchCodeInFileWithScopeExpansion).not.toHaveBeenCalled();
