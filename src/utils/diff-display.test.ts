@@ -45,6 +45,35 @@ describe('displayCodeDiff', () => {
 
     expect(result).toContain('+ new line');
   });
+
+  it('actual が expected より短い場合も正しく表示する', () => {
+    const expected = 'line1\nline2\nline3';
+    const actual = 'line1';
+    const result = displayCodeDiff(expected, actual);
+
+    // 一致する行
+    expect(result).toContain('  line1');
+
+    // 削除された行（expected にのみ存在）
+    expect(result).toContain('- line2');
+    expect(result).toContain('- line3');
+  });
+
+  it('expected と actual の長さが異なり、途中で一致しない場合', () => {
+    const expected = 'line1\nline2';
+    const actual = 'line1\nmodified\nline3';
+    const result = displayCodeDiff(expected, actual);
+
+    // 一致する行
+    expect(result).toContain('  line1');
+
+    // 変更された行
+    expect(result).toContain('- line2');
+    expect(result).toContain('+ modified');
+
+    // 追加された行
+    expect(result).toContain('+ line3');
+  });
 });
 
 describe('displayLineRangeDiff', () => {

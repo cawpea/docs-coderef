@@ -151,8 +151,7 @@ export function createBlockMissingFix(error: CodeRefError, config: CodeRefConfig
   }
 
   // 2. Code block not found → existing logic (insert)
-  const projectRoot = config.projectRoot;
-  const absolutePath = path.resolve(projectRoot, ref.refPath);
+  const absolutePath = path.resolve(config.projectRoot, ref.refPath);
 
   // Only symbol specified without line numbers
   if (ref.symbolPath && (ref.startLine === null || ref.endLine === null)) {
