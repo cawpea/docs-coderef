@@ -7,10 +7,10 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   collectCoverageFrom: [
     'src/**/*.ts',
+    'scripts/**/*.ts',
     '!src/**/*.d.ts',
     '!src/**/*.test.ts',
     '!src/cli/**/*.ts', // CLI はカバレッジから除外（統合テストで検証）
-    'scripts/**/*.ts',
     '!scripts/**/*.test.ts',
     '!scripts/lib/types.ts', // 型定義のみのファイルは除外
   ],
