@@ -221,6 +221,71 @@ describe('styles', () => {
       // Should contain formatted line information for single line
       expect(result).toContain('Line: 10');
     });
+
+    it('should handle empty preview', () => {
+      const mockError: CodeRefError = {
+        type: 'UPDATE_LINE_NUMBERS',
+        message: 'Line numbers need update',
+        ref: {
+          fullMatch: '',
+          refPath: 'test.ts',
+          startLine: 10,
+          endLine: 15,
+          docFile: 'test.md',
+        },
+      };
+
+      const options: FixAction[] = [
+        {
+          type: 'UPDATE_LINE_NUMBERS',
+          error: mockError,
+          description: 'Update line numbers',
+          preview: '',
+        },
+      ];
+
+      const result = formatFixOptions(options);
+
+      // Should contain option description
+      expect(result).toContain('Update line numbers');
+      // Should contain box drawing
+      expect(result).toContain('┌');
+      // Should NOT contain Preview section
+      expect(result).not.toContain('Preview:');
+    });
+
+    it('should handle preview without line information', () => {
+      const mockError: CodeRefError = {
+        type: 'REPLACE_CODE_BLOCK',
+        message: 'Code content mismatch',
+        ref: {
+          fullMatch: '',
+          refPath: 'test.ts',
+          startLine: 10,
+          endLine: 15,
+          docFile: 'test.md',
+        },
+      };
+
+      const options: FixAction[] = [
+        {
+          type: 'REPLACE_CODE_BLOCK',
+          error: mockError,
+          description: 'Replace code block',
+          preview: '```typescript\nfunction test() {}\n```',
+        },
+      ];
+
+      const result = formatFixOptions(options);
+
+      // Should contain option description
+      expect(result).toContain('Replace code block');
+      // Should contain preview
+      expect(result).toContain('Preview:');
+      expect(result).toContain('function test()');
+      // Should NOT contain line info (no "Lines:" or "Line:" in preview)
+      expect(result).not.toMatch(/Lines?: \d+/);
+    });
   });
 
   describe('color disabled environment', () => {
@@ -257,6 +322,71 @@ describe('styles', () => {
       // We just verify the function doesn't crash and returns text
       expect(result).toContain('Option 1');
       expect(result).toContain('Test option');
+    });
+  });
+
+  describe('syntax highlighting', () => {
+    it('should highlight code block markers as dim', () => {
+      const mockError: CodeRefError = {
+        type: 'REPLACE_CODE_BLOCK',
+        message: 'Code content mismatch',
+        ref: {
+          fullMatch: '',
+          refPath: 'test.ts',
+          startLine: 10,
+          endLine: 15,
+          docFile: 'test.md',
+        },
+      };
+
+      const options: FixAction[] = [
+        {
+          type: 'REPLACE_CODE_BLOCK',
+          error: mockError,
+          description: 'Replace code',
+          preview: '```typescript\ncode here\n```',
+        },
+      ];
+
+      const result = formatFixOptions(options);
+
+      // Should contain code block markers
+      expect(result).toContain('```typescript');
+      expect(result).toContain('```');
+    });
+
+    it('should highlight keywords in code', () => {
+      const mockError: CodeRefError = {
+        type: 'REPLACE_CODE_BLOCK',
+        message: 'Code content mismatch',
+        ref: {
+          fullMatch: '',
+          refPath: 'test.ts',
+          startLine: 10,
+          endLine: 15,
+          docFile: 'test.md',
+        },
+      };
+
+      const options: FixAction[] = [
+        {
+          type: 'REPLACE_CODE_BLOCK',
+          error: mockError,
+          description: 'Replace code',
+          preview:
+            'function test() {\n  const x = 42;\n  return x;\n}\nexport class Foo {}\ninterface Bar {}',
+        },
+      ];
+
+      const result = formatFixOptions(options);
+
+      // Should contain code with keywords
+      expect(result).toContain('function');
+      expect(result).toContain('const');
+      expect(result).toContain('return');
+      expect(result).toContain('export');
+      expect(result).toContain('class');
+      expect(result).toContain('interface');
     });
   });
 
