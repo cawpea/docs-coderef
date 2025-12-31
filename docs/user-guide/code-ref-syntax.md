@@ -16,13 +16,28 @@ This will extract lines 10-20 from `src/index.ts`.
 
 ## Reference by Symbol Name
 
-Reference code by function or variable name:
+Reference code by function name:
 
 ```markdown
 <!-- CODE_REF: src/index.ts#myFunction -->
 ```
 
 This will find and extract the `myFunction` function from `src/index.ts` using AST parsing.
+
+## Reference Variables
+
+Reference variables (const, let, var):
+
+```markdown
+<!-- CODE_REF: src/config.ts#API_KEY -->
+```
+
+This will find and extract the `API_KEY` variable from `src/config.ts` using AST parsing. Supports:
+
+- `const`, `let`, and `var` declarations
+- Exported variables
+- Destructuring patterns (object, array, rest syntax)
+- Multiple declarators in a single statement
 
 ## Reference Class Methods
 
@@ -118,7 +133,52 @@ getName(): string {
 ```
 ````
 
-### Example 4: Multiple References in One Document
+### Example 4: Variable Reference
+
+Suppose you have a configuration file `src/config.ts`:
+
+```typescript
+// src/config.ts
+/**
+ * API endpoint URL
+ */
+export const API_ENDPOINT = 'https://api.example.com';
+
+/**
+ * Maximum retry attempts
+ */
+export const MAX_RETRIES = 3;
+
+// Environment variables with destructuring
+const { API_KEY, SECRET_KEY } = process.env;
+```
+
+You can reference variables:
+
+````markdown
+Here's our API endpoint configuration:
+
+<!-- CODE_REF: src/config.ts#API_ENDPOINT -->
+
+```typescript
+/**
+ * API endpoint URL
+ */
+export const API_ENDPOINT = 'https://api.example.com';
+```
+
+Here's a destructured variable:
+
+<!-- CODE_REF: src/config.ts#API_KEY -->
+
+```typescript
+const { API_KEY, SECRET_KEY } = process.env;
+```
+````
+
+Note: When referencing a destructured variable, the entire destructuring statement is extracted.
+
+### Example 5: Multiple References in One Document
 
 You can have multiple CODE_REF comments in a single markdown file:
 
@@ -149,10 +209,96 @@ getName(): string {
 ## Best Practices
 
 - Use line-based references for stable code sections
-- Use symbol references for code that may move around in the file
+- Use symbol references (functions/variables) for code that may move around in the file
+- Use variable references for configuration constants and important declarations
 - Keep referenced code blocks focused and readable
 - Update references when refactoring code
 - Always include the code block immediately after the CODE_REF comment
+
+## Symbol Resolution Priority
+
+When a symbol name matches both a function and a variable, the function takes precedence:
+
+```typescript
+const config = { port: 3000 }; // This won't be referenced
+function config() {
+  /* ... */
+} // This will be referenced
+```
+
+To reference the variable in this case, consider renaming one of them or using line-based references.
+
+## Known Limitations
+
+### Variable Reference Limitations
+
+The variable reference feature has the following limitations:
+
+#### 1. Nested Destructuring Not Supported
+
+Nested destructuring patterns are not currently supported:
+
+❌ **Not Supported:**
+
+```typescript
+const {
+  a: {
+    b: { c },
+  },
+} = obj;
+```
+
+✅ **Workaround:** Use line-based references for nested destructuring:
+
+```markdown
+<!-- CODE_REF: src/config.ts:10-15 -->
+```
+
+#### 2. Renamed Destructured Properties Not Supported
+
+Property renaming in destructuring is not supported:
+
+❌ **Not Supported:**
+
+```typescript
+const { originalName: renamedVar } = obj;
+```
+
+Attempting to reference `renamedVar` will not work.
+
+✅ **Workaround:** Use line-based references or refactor to use the original property name.
+
+#### 3. Only Top-Level Variables Are Searchable
+
+Variables declared inside functions, blocks, or other scopes cannot be referenced by symbol:
+
+❌ **Not Supported:**
+
+```typescript
+function myFunction() {
+  const localVar = 'value'; // Cannot be referenced
+}
+
+if (condition) {
+  const blockVar = 'value'; // Cannot be referenced
+}
+```
+
+✅ **Supported:**
+
+```typescript
+const topLevelVar = 'value'; // Can be referenced
+
+export const exportedVar = 'value'; // Can be referenced
+```
+
+✅ **Workaround:** For non-top-level variables, use line-based references.
+
+### General Limitations
+
+- Symbol references only work with TypeScript/JavaScript files (`.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`)
+- For other file types, use line-based references
+- CODE_REF comments must be immediately followed by a code block (empty lines allowed)
 
 ## Common Mistakes
 
