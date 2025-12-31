@@ -56,6 +56,8 @@ For command-line examples, use:
 - `json` for JSON configuration
 - `markdown` for markdown examples
 
+**Important**: When including code examples from the actual source code, always use CODE_REF comments to reference the source. This ensures the documentation stays synchronized with the codebase. See [Using CODE_REF in Documentation](#using-code_ref-in-documentation) for details.
+
 ### Lists
 
 Use consistent formatting:
@@ -128,9 +130,14 @@ The basic syntax is:
 
 ### Best Practices for CODE_REF
 
+- **Always use CODE_REF when including code examples from the actual source code**
+  - This applies to any code snippets copied from `src/`, `bin/`, or other source directories
+  - CODE_REF ensures documentation stays in sync with the codebase
+  - Without CODE_REF, code examples can become outdated and misleading
 - Use CODE_REF when showing actual implementation code
 - Keep referenced code snippets short and focused
 - Update documentation when refactoring referenced code
+- For hypothetical or generic examples that don't reference actual source code, CODE_REF is not required
 
 ## When to Update Documentation
 
@@ -178,3 +185,4 @@ This script will:
 - Don't use inline HTML when markdown suffices
 - Don't forget to update `docs/README.md` when adding new documents
 - Don't commit user-facing code changes without updating documentation
+- **Don't include code examples from the actual source code without CODE_REF comments**
