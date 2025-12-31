@@ -28,3 +28,13 @@ Coverage thresholds are set to 80% for all metrics (branches, functions, lines, 
 npx jest src/utils/foo.test.ts       # Run specific test file
 npx jest -t "<test-name-pattern>"    # Run tests matching pattern
 ```
+
+## Documentation Validation
+
+When making changes to user-facing code (CLI, public APIs, etc.), validate that documentation is updated:
+
+```bash
+npm run docs:validate      # Check if documentation needs updating
+```
+
+This script automatically detects your base branch and suggests which documentation files to update. See [Documentation Guidelines](documentation.md) for details.

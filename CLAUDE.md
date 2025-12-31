@@ -34,6 +34,7 @@ npm test                   # Run all tests
 npm run lint:fix           # Auto-fix linting issues
 npm run format             # Format code with Prettier
 npm run type-check         # Run TypeScript compiler checks
+npm run docs:validate      # Validate documentation updates
 ```
 
 ### Commit Message Format
