@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- **Minimum Node.js version**: 16.0.0 (specified in `package.json` engines)
+- **Minimum Node.js version**: 20.0.0 (specified in `package.json` engines)
 - **Recommended version**: See `.node-version` file in the project root
 
 ## Building

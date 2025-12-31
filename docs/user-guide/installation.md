@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- **Minimum Node.js version**: 16.0.0
+- **Minimum Node.js version**: 20.0.0
 - **Recommended version**: See `.node-version` file in the project root
 
 ## Install the Package
