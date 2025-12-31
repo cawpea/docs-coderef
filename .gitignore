@@ -127,7 +127,8 @@ dist
 .vscode-test
 
 # Claude.ai files
-.claude/
+.claude/*
+!.claude/commands/
 
 # yarn v3
 .pnp.*
