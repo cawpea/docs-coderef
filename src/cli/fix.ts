@@ -16,6 +16,7 @@ import * as path from 'path';
 import { createBackup } from '@/utils/backup';
 import { applyFix, createFixAction, handleMultipleMatches, isFixableError } from '@/utils/fix';
 import { askYesNo, createPromptInterface, displayFixPreview } from '@/utils/prompt';
+import { formatFixOptions } from '@/utils/styles';
 import type { CodeRefError, FixOptions, FixResult } from '@/utils/types';
 import { extractCodeRefs, findMarkdownFiles, validateCodeRef } from '@/core/validate';
 import { loadFixConfig, getDocsPath, type CodeRefFixConfig } from '@/config';
@@ -141,15 +142,7 @@ export async function main(): Promise<void> {
           // If there are multiple options, let the user choose
           if (Array.isArray(fixActionResult)) {
             console.log('\n🛠️ Please select a fix method:\n');
-
-            fixActionResult.forEach((opt, index) => {
-              console.log(`  ${index + 1}. ${opt.description}`);
-              const previewLines = opt.preview.split('\n');
-              previewLines.forEach((line) => {
-                console.log(`     ${line}`);
-              });
-              console.log('');
-            });
+            console.log(formatFixOptions(fixActionResult));
 
             if (options.auto) {
               // Auto-select first option in auto mode
