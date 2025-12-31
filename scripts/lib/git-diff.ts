@@ -1,20 +1,26 @@
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 
 import type { GitDiff, GitFileChange } from './types';
 
 /**
- * Execute a git command
+ * Execute a git command safely using spawnSync to prevent command injection
  */
 export function execGit(args: string[]): string {
-  try {
-    const result = execSync(`git ${args.join(' ')}`, {
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    return result.trim();
-  } catch (error: any) {
-    throw new Error(`Git command failed: ${error.message}`);
+  const result = spawnSync('git', args, {
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+
+  if (result.error) {
+    throw new Error(`Git command failed: ${result.error.message}`);
   }
+
+  if (result.status !== 0) {
+    const errorMessage = result.stderr?.trim() || `Command exited with code ${result.status}`;
+    throw new Error(`Git command failed: ${errorMessage}`);
+  }
+
+  return result.stdout.trim();
 }
 
 /**
@@ -87,7 +93,7 @@ export function detectBaseBranch(): string {
 
     // Return the branch with fewer commits (more recent fork point)
     return commitsFromDevelop <= commitsFromMain ? 'develop' : 'main';
-  } catch (_error: any) {
+  } catch (_error: unknown) {
     // Fallback to develop if merge-base fails
     return 'develop';
   }
@@ -97,7 +103,7 @@ export function detectBaseBranch(): string {
  * Get changed files between base branch and HEAD
  */
 export function getChangedFiles(baseBranch?: string): GitDiff {
-  const base = baseBranch || detectBaseBranch();
+  const base = baseBranch ?? detectBaseBranch();
 
   try {
     // Get diff between base branch and HEAD
@@ -132,7 +138,8 @@ export function getChangedFiles(baseBranch?: string): GitDiff {
     }
 
     return { files, stats };
-  } catch (error: any) {
-    throw new Error(`Failed to get changed files: ${error.message}`);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to get changed files: ${message}`);
   }
 }

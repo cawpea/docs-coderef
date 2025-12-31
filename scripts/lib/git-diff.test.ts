@@ -1,10 +1,10 @@
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import { execGit, detectBaseBranch, getChangedFiles } from './git-diff';
 
 // Mock child_process
 jest.mock('child_process');
 
-const mockedExecSync = execSync as jest.MockedFunction<typeof execSync>;
+const mockedSpawnSync = spawnSync as jest.MockedFunction<typeof spawnSync>;
 
 describe('git-diff', () => {
   beforeEach(() => {
@@ -13,19 +13,27 @@ describe('git-diff', () => {
 
   describe('execGit', () => {
     it('should execute git command successfully', () => {
-      mockedExecSync.mockReturnValue('output\n' as any);
+      mockedSpawnSync.mockReturnValue({
+        status: 0,
+        stdout: 'output\n',
+        stderr: '',
+      } as any);
 
       const result = execGit(['status']);
 
       expect(result).toBe('output');
-      expect(mockedExecSync).toHaveBeenCalledWith('git status', {
+      expect(mockedSpawnSync).toHaveBeenCalledWith('git', ['status'], {
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe'],
       });
     });
 
     it('should trim whitespace from git command output', () => {
-      mockedExecSync.mockReturnValue('  output  \n' as any);
+      mockedSpawnSync.mockReturnValue({
+        status: 0,
+        stdout: '  output  \n',
+        stderr: '',
+      } as any);
 
       const result = execGit(['log']);
 
@@ -33,30 +41,40 @@ describe('git-diff', () => {
     });
 
     it('should throw error when git command fails', () => {
-      mockedExecSync.mockImplementation(() => {
-        throw new Error('Command failed');
-      });
+      mockedSpawnSync.mockReturnValue({
+        status: 1,
+        stdout: '',
+        stderr: 'Command failed',
+      } as any);
 
       expect(() => execGit(['invalid'])).toThrow('Git command failed');
     });
 
     it('should handle multiple arguments', () => {
-      mockedExecSync.mockReturnValue('result' as any);
+      mockedSpawnSync.mockReturnValue({
+        status: 0,
+        stdout: 'result',
+        stderr: '',
+      } as any);
 
       execGit(['diff', '--name-status', 'main...HEAD']);
 
-      expect(mockedExecSync).toHaveBeenCalledWith('git diff --name-status main...HEAD', {
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'pipe'],
-      });
+      expect(mockedSpawnSync).toHaveBeenCalledWith(
+        'git',
+        ['diff', '--name-status', 'main...HEAD'],
+        {
+          encoding: 'utf-8',
+          stdio: ['pipe', 'pipe', 'pipe'],
+        }
+      );
     });
   });
 
   describe('detectBaseBranch', () => {
     it('should throw error when on main branch', () => {
-      mockedExecSync
-        .mockReturnValueOnce('main' as any) // getCurrentBranch
-        .mockReturnValue('dummy' as any);
+      mockedSpawnSync
+        .mockReturnValueOnce({ status: 0, stdout: 'main', stderr: '' } as any) // getCurrentBranch
+        .mockReturnValue({ status: 0, stdout: 'dummy', stderr: '' } as any);
 
       expect(() => detectBaseBranch()).toThrow(
         'Cannot validate from main branch. Please run this from a feature branch.'
@@ -64,9 +82,9 @@ describe('git-diff', () => {
     });
 
     it('should throw error when on develop branch', () => {
-      mockedExecSync
-        .mockReturnValueOnce('develop' as any) // getCurrentBranch
-        .mockReturnValue('dummy' as any);
+      mockedSpawnSync
+        .mockReturnValueOnce({ status: 0, stdout: 'develop', stderr: '' } as any) // getCurrentBranch
+        .mockReturnValue({ status: 0, stdout: 'dummy', stderr: '' } as any);
 
       expect(() => detectBaseBranch()).toThrow(
         'Cannot validate from develop branch. Please run this from a feature branch.'
@@ -74,25 +92,19 @@ describe('git-diff', () => {
     });
 
     it('should throw error when neither main nor develop exists', () => {
-      mockedExecSync
-        .mockReturnValueOnce('feature-branch' as any) // getCurrentBranch
-        .mockImplementationOnce(() => {
-          throw new Error('Branch not found');
-        }) // branchExists(main)
-        .mockImplementationOnce(() => {
-          throw new Error('Branch not found');
-        }); // branchExists(develop)
+      mockedSpawnSync
+        .mockReturnValueOnce({ status: 0, stdout: 'feature-branch', stderr: '' } as any) // getCurrentBranch
+        .mockReturnValueOnce({ status: 1, stdout: '', stderr: 'Branch not found' } as any) // branchExists(main)
+        .mockReturnValueOnce({ status: 1, stdout: '', stderr: 'Branch not found' } as any); // branchExists(develop)
 
       expect(() => detectBaseBranch()).toThrow('Neither main nor develop branch exists');
     });
 
     it('should return develop when only develop exists', () => {
-      mockedExecSync
-        .mockReturnValueOnce('feature-branch' as any) // getCurrentBranch
-        .mockImplementationOnce(() => {
-          throw new Error('Branch not found');
-        }) // branchExists(main)
-        .mockReturnValueOnce('dummy' as any); // branchExists(develop)
+      mockedSpawnSync
+        .mockReturnValueOnce({ status: 0, stdout: 'feature-branch', stderr: '' } as any) // getCurrentBranch
+        .mockReturnValueOnce({ status: 1, stdout: '', stderr: 'Branch not found' } as any) // branchExists(main)
+        .mockReturnValueOnce({ status: 0, stdout: 'dummy', stderr: '' } as any); // branchExists(develop)
 
       const result = detectBaseBranch();
 
@@ -100,12 +112,10 @@ describe('git-diff', () => {
     });
 
     it('should return main when only main exists', () => {
-      mockedExecSync
-        .mockReturnValueOnce('feature-branch' as any) // getCurrentBranch
-        .mockReturnValueOnce('dummy' as any) // branchExists(main)
-        .mockImplementationOnce(() => {
-          throw new Error('Branch not found');
-        }); // branchExists(develop)
+      mockedSpawnSync
+        .mockReturnValueOnce({ status: 0, stdout: 'feature-branch', stderr: '' } as any) // getCurrentBranch
+        .mockReturnValueOnce({ status: 0, stdout: 'dummy', stderr: '' } as any) // branchExists(main)
+        .mockReturnValueOnce({ status: 1, stdout: '', stderr: 'Branch not found' } as any); // branchExists(develop)
 
       const result = detectBaseBranch();
 
@@ -113,14 +123,14 @@ describe('git-diff', () => {
     });
 
     it('should return develop when it has fewer commits', () => {
-      mockedExecSync
-        .mockReturnValueOnce('feature-branch' as any) // getCurrentBranch
-        .mockReturnValueOnce('dummy' as any) // branchExists(main)
-        .mockReturnValueOnce('dummy' as any) // branchExists(develop)
-        .mockReturnValueOnce('abc123' as any) // merge-base main
-        .mockReturnValueOnce('def456' as any) // merge-base develop
-        .mockReturnValueOnce('5' as any) // countCommits from main
-        .mockReturnValueOnce('3' as any); // countCommits from develop
+      mockedSpawnSync
+        .mockReturnValueOnce({ status: 0, stdout: 'feature-branch', stderr: '' } as any) // getCurrentBranch
+        .mockReturnValueOnce({ status: 0, stdout: 'dummy', stderr: '' } as any) // branchExists(main)
+        .mockReturnValueOnce({ status: 0, stdout: 'dummy', stderr: '' } as any) // branchExists(develop)
+        .mockReturnValueOnce({ status: 0, stdout: 'abc123', stderr: '' } as any) // merge-base main
+        .mockReturnValueOnce({ status: 0, stdout: 'def456', stderr: '' } as any) // merge-base develop
+        .mockReturnValueOnce({ status: 0, stdout: '5', stderr: '' } as any) // countCommits from main
+        .mockReturnValueOnce({ status: 0, stdout: '3', stderr: '' } as any); // countCommits from develop
 
       const result = detectBaseBranch();
 
@@ -128,14 +138,14 @@ describe('git-diff', () => {
     });
 
     it('should return main when it has fewer commits', () => {
-      mockedExecSync
-        .mockReturnValueOnce('feature-branch' as any) // getCurrentBranch
-        .mockReturnValueOnce('dummy' as any) // branchExists(main)
-        .mockReturnValueOnce('dummy' as any) // branchExists(develop)
-        .mockReturnValueOnce('abc123' as any) // merge-base main
-        .mockReturnValueOnce('def456' as any) // merge-base develop
-        .mockReturnValueOnce('2' as any) // countCommits from main
-        .mockReturnValueOnce('5' as any); // countCommits from develop
+      mockedSpawnSync
+        .mockReturnValueOnce({ status: 0, stdout: 'feature-branch', stderr: '' } as any) // getCurrentBranch
+        .mockReturnValueOnce({ status: 0, stdout: 'dummy', stderr: '' } as any) // branchExists(main)
+        .mockReturnValueOnce({ status: 0, stdout: 'dummy', stderr: '' } as any) // branchExists(develop)
+        .mockReturnValueOnce({ status: 0, stdout: 'abc123', stderr: '' } as any) // merge-base main
+        .mockReturnValueOnce({ status: 0, stdout: 'def456', stderr: '' } as any) // merge-base develop
+        .mockReturnValueOnce({ status: 0, stdout: '2', stderr: '' } as any) // countCommits from main
+        .mockReturnValueOnce({ status: 0, stdout: '5', stderr: '' } as any); // countCommits from develop
 
       const result = detectBaseBranch();
 
@@ -143,13 +153,11 @@ describe('git-diff', () => {
     });
 
     it('should fallback to develop when merge-base fails', () => {
-      mockedExecSync
-        .mockReturnValueOnce('feature-branch' as any) // getCurrentBranch
-        .mockReturnValueOnce('dummy' as any) // branchExists(main)
-        .mockReturnValueOnce('dummy' as any) // branchExists(develop)
-        .mockImplementationOnce(() => {
-          throw new Error('merge-base failed');
-        });
+      mockedSpawnSync
+        .mockReturnValueOnce({ status: 0, stdout: 'feature-branch', stderr: '' } as any) // getCurrentBranch
+        .mockReturnValueOnce({ status: 0, stdout: 'dummy', stderr: '' } as any) // branchExists(main)
+        .mockReturnValueOnce({ status: 0, stdout: 'dummy', stderr: '' } as any) // branchExists(develop)
+        .mockReturnValueOnce({ status: 1, stdout: '', stderr: 'merge-base failed' } as any);
 
       const result = detectBaseBranch();
 
@@ -159,7 +167,7 @@ describe('git-diff', () => {
 
   describe('getChangedFiles', () => {
     it('should return empty result when no changes detected', () => {
-      mockedExecSync.mockReturnValue('' as any);
+      mockedSpawnSync.mockReturnValue({ status: 0, stdout: '', stderr: '' } as any);
 
       const result = getChangedFiles('main');
 
@@ -170,7 +178,11 @@ describe('git-diff', () => {
     });
 
     it('should parse added files correctly', () => {
-      mockedExecSync.mockReturnValue('A\tsrc/new-file.ts\n' as any);
+      mockedSpawnSync.mockReturnValue({
+        status: 0,
+        stdout: 'A\tsrc/new-file.ts\n',
+        stderr: '',
+      } as any);
 
       const result = getChangedFiles('main');
 
@@ -179,7 +191,11 @@ describe('git-diff', () => {
     });
 
     it('should parse modified files correctly', () => {
-      mockedExecSync.mockReturnValue('M\tsrc/existing-file.ts\n' as any);
+      mockedSpawnSync.mockReturnValue({
+        status: 0,
+        stdout: 'M\tsrc/existing-file.ts\n',
+        stderr: '',
+      } as any);
 
       const result = getChangedFiles('main');
 
@@ -188,7 +204,11 @@ describe('git-diff', () => {
     });
 
     it('should parse deleted files correctly', () => {
-      mockedExecSync.mockReturnValue('D\tsrc/removed-file.ts\n' as any);
+      mockedSpawnSync.mockReturnValue({
+        status: 0,
+        stdout: 'D\tsrc/removed-file.ts\n',
+        stderr: '',
+      } as any);
 
       const result = getChangedFiles('main');
 
@@ -197,7 +217,11 @@ describe('git-diff', () => {
     });
 
     it('should parse renamed files correctly', () => {
-      mockedExecSync.mockReturnValue('R\tsrc/renamed-file.ts\n' as any);
+      mockedSpawnSync.mockReturnValue({
+        status: 0,
+        stdout: 'R\tsrc/renamed-file.ts\n',
+        stderr: '',
+      } as any);
 
       const result = getChangedFiles('main');
 
@@ -213,7 +237,7 @@ describe('git-diff', () => {
         'A\tdocs/README.md',
       ].join('\n');
 
-      mockedExecSync.mockReturnValue(diffOutput as any);
+      mockedSpawnSync.mockReturnValue({ status: 0, stdout: diffOutput, stderr: '' } as any);
 
       const result = getChangedFiles('main');
 
@@ -226,7 +250,11 @@ describe('git-diff', () => {
     });
 
     it('should handle file paths with tabs', () => {
-      mockedExecSync.mockReturnValue('A\tpath\twith\ttabs.ts\n' as any);
+      mockedSpawnSync.mockReturnValue({
+        status: 0,
+        stdout: 'A\tpath\twith\ttabs.ts\n',
+        stderr: '',
+      } as any);
 
       const result = getChangedFiles('main');
 
@@ -235,7 +263,7 @@ describe('git-diff', () => {
 
     it('should ignore empty lines', () => {
       const diffOutput = 'A\tsrc/file1.ts\n\n\nM\tsrc/file2.ts\n';
-      mockedExecSync.mockReturnValue(diffOutput as any);
+      mockedSpawnSync.mockReturnValue({ status: 0, stdout: diffOutput, stderr: '' } as any);
 
       const result = getChangedFiles('main');
 
@@ -243,27 +271,24 @@ describe('git-diff', () => {
     });
 
     it('should use detectBaseBranch when baseBranch is not provided', () => {
-      mockedExecSync
-        .mockReturnValueOnce('feature-branch' as any) // getCurrentBranch
-        .mockReturnValueOnce('dummy' as any) // branchExists(main)
-        .mockImplementationOnce(() => {
-          throw new Error('Branch not found');
-        }) // branchExists(develop)
-        .mockReturnValueOnce('A\tsrc/file.ts\n' as any); // git diff
+      mockedSpawnSync
+        .mockReturnValueOnce({ status: 0, stdout: 'feature-branch', stderr: '' } as any) // getCurrentBranch
+        .mockReturnValueOnce({ status: 0, stdout: 'dummy', stderr: '' } as any) // branchExists(main)
+        .mockReturnValueOnce({ status: 1, stdout: '', stderr: 'Branch not found' } as any) // branchExists(develop)
+        .mockReturnValueOnce({ status: 0, stdout: 'A\tsrc/file.ts\n', stderr: '' } as any); // git diff
 
       const result = getChangedFiles();
 
       expect(result.files).toHaveLength(1);
-      expect(mockedExecSync).toHaveBeenCalledWith(
-        'git diff --name-status main...HEAD',
+      expect(mockedSpawnSync).toHaveBeenCalledWith(
+        'git',
+        ['diff', '--name-status', 'main...HEAD'],
         expect.any(Object)
       );
     });
 
     it('should throw error when git command fails', () => {
-      mockedExecSync.mockImplementation(() => {
-        throw new Error('Git error');
-      });
+      mockedSpawnSync.mockReturnValue({ status: 1, stdout: '', stderr: 'Git error' } as any);
 
       expect(() => getChangedFiles('main')).toThrow('Failed to get changed files');
     });
@@ -271,7 +296,7 @@ describe('git-diff', () => {
     it('should skip lines without proper format', () => {
       const diffOutput = ['A\tsrc/valid.ts', 'INVALID_LINE', 'M\tsrc/another.ts'].join('\n');
 
-      mockedExecSync.mockReturnValue(diffOutput as any);
+      mockedSpawnSync.mockReturnValue({ status: 0, stdout: diffOutput, stderr: '' } as any);
 
       const result = getChangedFiles('main');
 
