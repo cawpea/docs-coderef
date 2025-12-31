@@ -49,7 +49,10 @@
     "prepublishOnly": "npm run build && npm test"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=22.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "@typescript-eslint/typescript-estree": "^8.50.1",
@@ -57,6 +60,12 @@
     "commander": "^14.0.2"
   },
   "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^11.1.0",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^9.2.6",
+    "@semantic-release/npm": "^11.0.2",
+    "@semantic-release/release-notes-generator": "^12.1.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.10.1",
     "@typescript-eslint/eslint-plugin": "^8.18.1",
@@ -67,6 +76,7 @@
     "jest": "^30.2.0",
     "lint-staged": "^16.2.7",
     "prettier": "^3.4.2",
+    "semantic-release": "^23.0.0",
     "ts-jest": "^29.4.5",
     "tsup": "^8.0.0",
     "tsx": "^4.19.2",
