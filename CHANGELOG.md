@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Package rename**: Changed package name from `@cawpea/coderef` to `docs-coderef` (removed scope)
 - **CLI command**: Changed from `coderef` to `docs-coderef`
-- **Config file**: Renamed from `.docs-coderefrc.json` to `.docs-coderefrc.json`
+- **Config file**: Renamed from `.coderefrc.json` to `.docs-coderefrc.json`
 - **package.json field**: Changed from `"coderef"` to `"docs-coderef"`
 - **Environment variables**: Changed from `CODEREF_*` to `DOCS_CODEREF_*`
 - **Repository**: Renamed from `cawpea/coderef` to `cawpea/docs-coderef`
