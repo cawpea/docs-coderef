@@ -53,7 +53,7 @@ export function findMarkdownFiles(dir: string): string[] {
 function getCodeBlockRanges(content: string): { start: number; end: number }[] {
   const ranges: { start: number; end: number }[] = [];
 
-  // Triple backtick code blocks
+  // Triple backtick code blocks (closed)
   const codeBlockPattern = /```[\s\S]*?```/g;
   let match: RegExpExecArray | null;
 
@@ -62,6 +62,28 @@ function getCodeBlockRanges(content: string): { start: number; end: number }[] {
       start: match.index,
       end: match.index + match[0].length,
     });
+  }
+
+  // Find unclosed code blocks (starting ``` without closing ```)
+  const allCodeBlockStarts = /```/g;
+  const closedRanges = ranges.slice(); // Copy of closed ranges
+  let startMatch: RegExpExecArray | null;
+
+  while ((startMatch = allCodeBlockStarts.exec(content)) !== null) {
+    const startPos = startMatch.index;
+
+    // Check if this start position is already part of a closed block
+    const isPartOfClosedBlock = closedRanges.some(
+      (range) => startPos >= range.start && startPos < range.end
+    );
+
+    if (!isPartOfClosedBlock) {
+      // This is an unclosed block - treat from start to end of content
+      ranges.push({
+        start: startPos,
+        end: content.length,
+      });
+    }
   }
 
   // Inline code (backticks)

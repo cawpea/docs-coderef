@@ -162,6 +162,86 @@ describe('validate-docs-code', () => {
       expect(result).toHaveLength(1);
       expect(result[0].refPath).toBe('src/example.ts');
     });
+
+    it('コードブロック内のCODE_REFを除外すること', () => {
+      const content = `
+# Test Document
+
+<!-- CODE_REF: src/valid.ts:1-10 -->
+
+\`\`\`html
+<!-- CODE_REF: src/should-be-ignored.ts:1-5 -->
+\`\`\`
+
+<!-- CODE_REF: src/another-valid.ts:10-20 -->
+      `;
+
+      const result = extractCodeRefs(content, '/docs/test.md');
+
+      expect(result).toHaveLength(2);
+      expect(result[0].refPath).toBe('src/valid.ts');
+      expect(result[1].refPath).toBe('src/another-valid.ts');
+    });
+
+    it('インラインコード内のCODE_REFを除外すること', () => {
+      const content = `
+# Test Document
+
+Use this syntax: \`<!-- CODE_REF: src/inline-ignored.ts:1-5 -->\`
+
+<!-- CODE_REF: src/valid.ts:1-10 -->
+      `;
+
+      const result = extractCodeRefs(content, '/docs/test.md');
+
+      expect(result).toHaveLength(1);
+      expect(result[0].refPath).toBe('src/valid.ts');
+    });
+
+    it('閉じていないコードブロック内のCODE_REFを除外すること', () => {
+      const content = `
+# Test Document
+
+<!-- CODE_REF: src/valid.ts:1-10 -->
+
+\`\`\`html
+<!-- CODE_REF: src/in-unclosed-block.ts:1-5 -->
+<!-- CODE_REF: src/also-in-unclosed-block.ts:1-5 -->
+      `;
+
+      const result = extractCodeRefs(content, '/docs/test.md');
+
+      expect(result).toHaveLength(1);
+      expect(result[0].refPath).toBe('src/valid.ts');
+    });
+
+    it('複数のコードブロックが混在する場合にCODE_REFを正しく抽出すること', () => {
+      const content = `
+# Documentation
+
+<!-- CODE_REF: src/valid1.ts:1-10 -->
+
+\`\`\`typescript
+<!-- CODE_REF: src/ignored1.ts:1-5 -->
+const x = 1;
+\`\`\`
+
+<!-- CODE_REF: src/valid2.ts:10-20 -->
+
+\`\`\`javascript
+<!-- CODE_REF: src/ignored2.ts:5-10 -->
+\`\`\`
+
+<!-- CODE_REF: src/valid3.ts:20-30 -->
+      `;
+
+      const result = extractCodeRefs(content, '/docs/test.md');
+
+      expect(result).toHaveLength(3);
+      expect(result[0].refPath).toBe('src/valid1.ts');
+      expect(result[1].refPath).toBe('src/valid2.ts');
+      expect(result[2].refPath).toBe('src/valid3.ts');
+    });
   });
 
   describe('validateCodeRef', () => {
