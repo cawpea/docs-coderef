@@ -14,7 +14,6 @@ const mockProjectRoot = '/project';
 const mockConfig: CodeRefConfig = {
   projectRoot: mockProjectRoot,
   docsDir: 'docs',
-  ignoreFile: '.docsignore',
   verbose: false,
 };
 

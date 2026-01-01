@@ -26,7 +26,7 @@ export interface CodeRefConfig {
   docsDir: string;
 
   /**
-   * Path to ignore file relative to projectRoot (default: ".docsignore")
+   * Path to ignore file relative to projectRoot
    */
   ignoreFile?: string;
 
@@ -80,7 +80,6 @@ function getDefaultConfig(): CodeRefConfig {
   return {
     projectRoot: process.cwd(),
     docsDir: 'docs',
-    ignoreFile: '.docsignore',
     verbose: false,
   };
 }

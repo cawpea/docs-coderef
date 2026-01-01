@@ -103,14 +103,14 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
     console.log(`📋 Specified files/directories: ${options.files.join(', ')}\n`);
   }
 
-  // Load .docsignore patterns
+  // Load ignore patterns
   const ignoreFilePath = getIgnoreFilePath(config);
   const ignorePatterns = ignoreFilePath ? loadDocsignorePatterns(ignoreFilePath) : [];
   if (options.verbose) {
-    console.log(`📋 Loaded ${ignorePatterns.length} patterns from .docsignore\n`);
+    console.log(`📋 Loaded ${ignorePatterns.length} ignore patterns\n`);
   }
 
-  // Filter files not excluded by .docsignore
+  // Filter files not excluded by ignore patterns
   const markdownFiles = allMarkdownFiles.filter((file) => {
     const relativePath = path.relative(config.projectRoot, file);
     return !isIgnored(relativePath, ignorePatterns);
@@ -118,7 +118,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
 
   if (options.verbose && allMarkdownFiles.length > markdownFiles.length) {
     console.log(
-      `📋 ${allMarkdownFiles.length - markdownFiles.length} files excluded by .docsignore\n`
+      `📋 ${allMarkdownFiles.length - markdownFiles.length} files excluded by ignore patterns\n`
     );
   }
 

@@ -50,7 +50,6 @@ const mockPrompt = prompt as jest.Mocked<typeof prompt>;
 const mockConfig: CodeRefConfig = {
   projectRoot: path.resolve(__dirname, '../../..'),
   docsDir: 'docs',
-  ignoreFile: '.docsignore',
   verbose: false,
 };
 

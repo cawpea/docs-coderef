@@ -17,7 +17,7 @@
 - 🎯 AST-based symbol searching for TypeScript/JavaScript
 - 📝 Interactive fix mode with colored diffs
 - 🎨 Beautiful diff display
-- 🚫 .docsignore support for excluding files
+- 🚫 Ignore file support for excluding files
 
 ## Installation
 
@@ -171,7 +171,7 @@ Create `.coderefrc.json` in your project root:
 {
   "projectRoot": ".",
   "docsDir": "docs",
-  "ignoreFile": ".docsignore"
+  "ignoreFile": ".gitignore"
 }
 ```
 

@@ -39,7 +39,6 @@ describe('Config System', () => {
         expect(config).toEqual({
           projectRoot: testDir,
           docsDir: 'docs',
-          ignoreFile: '.docsignore',
           verbose: false,
         });
       });
@@ -219,7 +218,7 @@ describe('Config System', () => {
 
         expect(config.docsDir).toBe('custom-docs');
         expect(config.projectRoot).toBe(testDir);
-        expect(config.ignoreFile).toBe('.docsignore');
+        expect(config.ignoreFile).toBeUndefined();
       });
     });
 
@@ -320,8 +319,9 @@ describe('Config System', () => {
 
     describe('getIgnoreFilePath', () => {
       it('should return absolute path to ignore file when configured', () => {
-        const ignorePath = getIgnoreFilePath(config);
-        expect(ignorePath).toBe(path.join(testDir, '.docsignore'));
+        const customConfig = loadConfig({ ignoreFile: '.gitignore' });
+        const ignorePath = getIgnoreFilePath(customConfig);
+        expect(ignorePath).toBe(path.join(testDir, '.gitignore'));
       });
 
       it('should return null when ignoreFile is not configured', () => {
@@ -343,13 +343,12 @@ describe('Config System', () => {
       const docsDir = path.join(testDir, 'docs');
       fs.mkdirSync(docsDir);
       fs.writeFileSync(path.join(docsDir, 'README.md'), '# Documentation');
-      fs.writeFileSync(path.join(testDir, '.docsignore'), '*.tmp.md');
 
       const config = loadConfig();
 
       expect(config.projectRoot).toBe(testDir);
       expect(getDocsPath(config)).toBe(docsDir);
-      expect(getIgnoreFilePath(config)).toBe(path.join(testDir, '.docsignore'));
+      expect(getIgnoreFilePath(config)).toBeNull();
     });
 
     it('should handle monorepo structure with custom docsDir', () => {

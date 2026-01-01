@@ -8,7 +8,7 @@ Create `.coderefrc.json` in your project root:
 {
   "projectRoot": ".",
   "docsDir": "docs",
-  "ignoreFile": ".docsignore",
+  "ignoreFile": ".gitignore",
   "ignorePatterns": ["**/*.draft.md"],
   "verbose": false
 }
@@ -55,14 +55,17 @@ The tool loads configuration from multiple sources with the following precedence
 #### `ignoreFile`
 
 - **Type**: `string` (optional)
-- **Default**: `".docsignore"`
+- **Default**: `undefined`
 - **Description**: Path to ignore file relative to `projectRoot`. The file follows `.gitignore` syntax.
 
 ```json
 {
-  "ignoreFile": ".docsignore"
+  "ignoreFile": ".gitignore"
 }
 ```
+
+> **Note**: Prior to version 0.2.0, the default value was `.docsignore`.
+> If you want to continue using `.docsignore`, explicitly set `ignoreFile: '.docsignore'` in your configuration.
 
 #### `ignorePatterns`
 
@@ -161,7 +164,7 @@ Configuration with custom ignore patterns and verbose output:
 {
   "projectRoot": ".",
   "docsDir": "documentation",
-  "ignoreFile": ".docsignore",
+  "ignoreFile": ".gitignore",
   "ignorePatterns": ["**/*.draft.md", "**/archive/**", "**/_*.md"],
   "verbose": true
 }
@@ -175,7 +178,7 @@ Configuration for a monorepo with multiple documentation directories:
 {
   "projectRoot": "packages/my-package",
   "docsDir": "docs",
-  "ignoreFile": "../../.docsignore"
+  "ignoreFile": "../../.gitignore"
 }
 ```
 
@@ -217,9 +220,9 @@ Alternatively, you can define configuration in `package.json`:
 
 ## Ignore Files
 
-### .docsignore Syntax
+### Ignore File Syntax
 
-The `.docsignore` file follows the same syntax as `.gitignore`:
+The ignore file follows the same syntax as `.gitignore`:
 
 ```
 # Ignore draft files
