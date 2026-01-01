@@ -53,37 +53,71 @@ export function findMarkdownFiles(dir: string): string[] {
 function getCodeBlockRanges(content: string): { start: number; end: number }[] {
   const ranges: { start: number; end: number }[] = [];
 
-  // Find all triple backtick positions
-  const backtickPositions: number[] = [];
-  const backtickPattern = /```/g;
-  let match: RegExpExecArray | null;
+  // Find all backtick sequences (3 or more consecutive backticks)
+  const backtickSequences: { position: number; length: number }[] = [];
+  let i = 0;
 
-  while ((match = backtickPattern.exec(content)) !== null) {
-    backtickPositions.push(match.index);
+  while (i < content.length) {
+    if (content[i] === '`') {
+      const start = i;
+      let count = 0;
+
+      // Count consecutive backticks
+      while (i < content.length && content[i] === '`') {
+        count++;
+        i++;
+      }
+
+      // Only consider sequences of 3 or more backticks as code block delimiters
+      if (count >= 3) {
+        backtickSequences.push({ position: start, length: count });
+      }
+    } else {
+      i++;
+    }
   }
 
-  // Pair up backticks: even indices (0, 2, 4...) are opening, odd indices (1, 3, 5...) are closing
-  for (let i = 0; i < backtickPositions.length; i += 2) {
-    const start = backtickPositions[i];
-    const end = backtickPositions[i + 1];
+  // Pair up backtick sequences with matching lengths
+  const used = new Set<number>();
 
-    if (end !== undefined) {
-      // Closed code block
+  for (let i = 0; i < backtickSequences.length; i++) {
+    if (used.has(i)) continue;
+
+    const opening = backtickSequences[i];
+
+    // Find the next sequence with the same length
+    for (let j = i + 1; j < backtickSequences.length; j++) {
+      if (used.has(j)) continue;
+
+      const closing = backtickSequences[j];
+
+      if (opening.length === closing.length) {
+        // Found a matching pair
+        ranges.push({
+          start: opening.position,
+          end: closing.position + closing.length,
+        });
+        used.add(i);
+        used.add(j);
+        break;
+      }
+    }
+  }
+
+  // Handle unclosed code blocks (sequences without a matching pair)
+  for (let i = 0; i < backtickSequences.length; i++) {
+    if (!used.has(i)) {
       ranges.push({
-        start,
-        end: end + 3, // +3 to include the closing ```
-      });
-    } else {
-      // Unclosed code block (odd number of backticks)
-      ranges.push({
-        start,
+        start: backtickSequences[i].position,
         end: content.length,
       });
     }
   }
 
-  // Inline code (backticks)
+  // Inline code (single backticks)
   const inlineCodePattern = /`[^`\n]+?`/g;
+  let match: RegExpExecArray | null;
+
   while ((match = inlineCodePattern.exec(content)) !== null) {
     ranges.push({
       start: match.index,

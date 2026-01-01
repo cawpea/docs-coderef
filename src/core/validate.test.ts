@@ -242,6 +242,52 @@ const x = 1;
       expect(result[1].refPath).toBe('src/valid2.ts');
       expect(result[2].refPath).toBe('src/valid3.ts');
     });
+
+    it('4つのバッククォートで囲まれたコードブロック内のCODE_REFを除外すること', () => {
+      const content = `
+# Implementation Details
+
+\`\`\`\`markdown
+## Class
+
+\`\`\`html
+<!-- CODE_REF: src/nested-ignored.ts:10-50 -->
+\`\`\`
+
+\`\`\`typescript
+export class ClassName {}
+\`\`\`
+\`\`\`\`
+
+<!-- CODE_REF: src/valid.ts:1-10 -->
+      `;
+
+      const result = extractCodeRefs(content, '/docs/test.md');
+
+      expect(result).toHaveLength(1);
+      expect(result[0].refPath).toBe('src/valid.ts');
+    });
+
+    it('5つのバッククォートで囲まれたコードブロック内のCODE_REFを除外すること', () => {
+      const content = `
+# Nested Example
+
+\`\`\`\`\`markdown
+\`\`\`\`markdown
+\`\`\`html
+<!-- CODE_REF: src/deeply-nested-ignored.ts:1-10 -->
+\`\`\`
+\`\`\`\`
+\`\`\`\`\`
+
+<!-- CODE_REF: src/valid.ts:1-10 -->
+      `;
+
+      const result = extractCodeRefs(content, '/docs/test.md');
+
+      expect(result).toHaveLength(1);
+      expect(result[0].refPath).toBe('src/valid.ts');
+    });
   });
 
   describe('validateCodeRef', () => {
