@@ -52,6 +52,7 @@
     "demo:fix": "npm run build && cd demo && npx docs-coderef fix",
     "demo:fix:dry": "npm run build && cd demo && npx docs-coderef fix --dry-run",
     "demo:fix:auto": "npm run build && cd demo && npx docs-coderef fix --auto",
+    "demo:reset": "git checkout demo/docs/ && rm -f demo/docs/**/*.backup 2>/dev/null || true",
     "prepublishOnly": "npm run build && npm test"
   },
   "engines": {
