@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [0.3.0](https://github.com/cawpea/docs-coderef/compare/v0.2.0...v0.3.0) (2026-01-01)
+
+
+### Bug Fixes
+
+* update demo valid docs to pass all validations ([2caab53](https://github.com/cawpea/docs-coderef/commit/2caab535a936d118efff7bedfadbd4a5b8d85c19))
+
+
+### Features
+
+* add demo environment for local CODE_REF testing ([b845f99](https://github.com/cawpea/docs-coderef/commit/b845f997368ef898ad315f3dfdd43506cfdb5679))
+* add demo:reset npm script for quick demo restoration ([3bceb6e](https://github.com/cawpea/docs-coderef/commit/3bceb6e00b72421c193495f506a6a1428123978a))
+
 # [0.2.0](https://github.com/cawpea/docs-coderef/compare/v0.1.0...v0.2.0) (2026-01-01)
 
 
