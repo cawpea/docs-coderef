@@ -35,7 +35,21 @@ npm run lint:fix           # Auto-fix linting issues
 npm run format             # Format code with Prettier
 npm run type-check         # Run TypeScript compiler checks
 npm run docs:validate      # Validate documentation updates
+npm run demo:validate      # Test with demo environment
 ```
+
+### Demo Environment
+
+The `demo/` directory provides a local testing environment:
+
+```bash
+npm run demo:validate:valid    # Validate correct CODE_REF usage
+npm run demo:validate:invalid  # See error detection examples
+npm run demo:fix:dry           # Preview auto-fix changes
+npm run demo:reset             # Reset demo to original state
+```
+
+See [demo/README.md](demo/README.md) for detailed usage.
 
 ### Commit Message Format
 

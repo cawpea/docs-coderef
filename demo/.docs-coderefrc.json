@@ -1,0 +1,6 @@
+{
+  "projectRoot": ".",
+  "docsDir": "docs",
+  "ignoreFile": ".gitignore",
+  "verbose": true
+}

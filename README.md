@@ -159,6 +159,33 @@ This references lines 15-35 of the file. If the code changes, `coderef` will det
 
 For more examples and usage patterns, see [docs/user-guide/](docs/user-guide/).
 
+## Demo Environment
+
+Try out `docs-coderef` with the included demo environment:
+
+```bash
+# Clone the repository
+git clone https://github.com/cawpea/docs-coderef.git
+cd docs-coderef
+
+# Install dependencies and build
+npm install
+npm run build
+
+# Try the demo
+npm run demo:validate:valid    # See valid CODE_REF examples
+npm run demo:validate:invalid  # See error detection
+npm run demo:fix:dry           # Preview auto-fix
+```
+
+The `demo/` directory includes:
+
+- Sample TypeScript files with various code patterns
+- Documentation with valid and invalid CODE_REF examples
+- Scripts for testing validation and fixing
+
+See [demo/README.md](demo/README.md) for detailed instructions.
+
 ## Configuration
 
 Create `.docs-coderefrc.json` in your project root:

@@ -46,6 +46,13 @@
     "format:check": "prettier --check \"src/**/*.ts\" \"*.{js,json,md}\"",
     "type-check": "tsc --noEmit",
     "docs:validate": "tsx scripts/validate-docs.ts",
+    "demo:validate": "npm run build && cd demo && npx docs-coderef validate docs",
+    "demo:validate:valid": "npm run build && cd demo && npx docs-coderef validate docs/valid",
+    "demo:validate:invalid": "npm run build && cd demo && npx docs-coderef validate docs/invalid",
+    "demo:fix": "npm run build && cd demo && npx docs-coderef fix",
+    "demo:fix:dry": "npm run build && cd demo && npx docs-coderef fix --dry-run",
+    "demo:fix:auto": "npm run build && cd demo && npx docs-coderef fix --auto",
+    "demo:reset": "git checkout demo/docs/ && rm -f demo/docs/**/*.backup 2>/dev/null || true",
     "prepublishOnly": "npm run build && npm test"
   },
   "engines": {

@@ -29,6 +29,27 @@ npx jest src/utils/foo.test.ts       # Run specific test file
 npx jest -t "<test-name-pattern>"    # Run tests matching pattern
 ```
 
+## Demo Environment
+
+The project includes a comprehensive demo environment for testing CODE_REF functionality:
+
+```bash
+npm run demo:validate        # Validate all demo documentation
+npm run demo:validate:valid  # Validate only valid examples (should pass)
+npm run demo:validate:invalid # Validate invalid examples (shows errors)
+npm run demo:fix:dry         # Preview fixes without applying
+npm run demo:fix             # Interactive fix mode
+npm run demo:reset           # Reset demo to original state
+```
+
+The demo environment is located in the `demo/` directory and includes:
+
+- Sample TypeScript files with various code patterns
+- Documentation examples (valid, invalid, and mixed)
+- Shell scripts for testing
+
+See `demo/README.md` for detailed usage instructions.
+
 ## Documentation Validation
 
 When making changes to user-facing code (CLI, public APIs, etc.), validate that documentation is updated:
