@@ -9,6 +9,9 @@ The `API_KEY` constant:
 <!-- CODE_REF: src/basic/variables.ts#API_KEY -->
 
 ```typescript
+/**
+ * API configuration constants
+ */
 export const API_KEY = 'demo-api-key-12345';
 ```
 
@@ -46,6 +49,9 @@ Destructured array constants:
 <!-- CODE_REF: src/basic/variables.ts#primaryColor -->
 
 ```typescript
+/**
+ * Array destructuring example
+ */
 export const [primaryColor, secondaryColor] = ['blue', 'green'];
 ```
 
@@ -56,6 +62,9 @@ Destructured object properties:
 <!-- CODE_REF: src/basic/variables.ts#appName -->
 
 ```typescript
+/**
+ * Object destructuring example
+ */
 export const { appName, version } = config;
 ```
 
@@ -66,6 +75,9 @@ The `MAX_RETRIES` constant:
 <!-- CODE_REF: src/basic/variables.ts#MAX_RETRIES -->
 
 ```typescript
+/**
+ * Multiple const declarations
+ */
 export const MAX_RETRIES = 3;
 ```
 
@@ -84,5 +96,8 @@ The `CACHE_DURATION` computed constant:
 <!-- CODE_REF: src/basic/variables.ts#CACHE_DURATION -->
 
 ```typescript
+/**
+ * Computed constant
+ */
 export const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
 ```

@@ -6,7 +6,7 @@ This document demonstrates valid class and method CODE_REF patterns.
 
 The complete `User` class:
 
-<!-- CODE_REF: src/basic/classes.ts#User -->
+<!-- CODE_REF: src/basic/classes.ts:5-72 -->
 
 ```typescript
 /**
@@ -131,7 +131,7 @@ static createGuest(): User {
 
 A simpler class with public properties:
 
-<!-- CODE_REF: src/basic/classes.ts#Product -->
+<!-- CODE_REF: src/basic/classes.ts:74-92 -->
 
 ```typescript
 /**
@@ -159,7 +159,7 @@ export class Product {
 
 The generic `Stack` class:
 
-<!-- CODE_REF: src/advanced/generics.ts#Stack -->
+<!-- CODE_REF: src/advanced/generics.ts:24-61 -->
 
 ```typescript
 /**

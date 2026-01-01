@@ -52,11 +52,11 @@ export const multiply = (a: number, b: number): number => {
 };
 ```
 
-## Multi-Parameter Function (Lines 31-40)
+## Multi-Parameter Function (Lines 31-36)
 
 A function with multiple parameters:
 
-<!-- CODE_REF: src/basic/functions.ts:31-40 -->
+<!-- CODE_REF: src/basic/functions.ts:31-36 -->
 
 ```typescript
 /**
@@ -71,11 +71,11 @@ export function formatUserInfo(
 }
 ```
 
-## Default Export (Lines 42-47)
+## Default Export (Lines 38-43)
 
 Default export function:
 
-<!-- CODE_REF: src/basic/functions.ts:42-47 -->
+<!-- CODE_REF: src/basic/functions.ts:38-43 -->
 
 ```typescript
 /**
