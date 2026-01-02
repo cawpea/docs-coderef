@@ -189,8 +189,19 @@ export function displayFixPreview(action: FixAction, projectRoot: string): void 
       console.log(COLOR_SCHEMES.success(`+ ${newComment}`));
       console.log(COLOR_SCHEMES.dim('━'.repeat(64)));
 
-      // If code block also exists, display content
-      if (action.newCodeBlock && fs.existsSync(absolutePath)) {
+      // If this is from CODE_CONTENT_MISMATCH, show what the actual code should be
+      if (error.type === 'CODE_CONTENT_MISMATCH' && fs.existsSync(absolutePath)) {
+        const actualCode = extractLinesFromFile(
+          absolutePath,
+          action.newStartLine!,
+          action.newEndLine!
+        );
+
+        console.log('\nNote: Code block will be kept as-is. Actual code in file:');
+        const diff = displayCodeDiff(action.newCodeBlock || '', actualCode);
+        console.log(diff);
+      } else if (action.newCodeBlock && fs.existsSync(absolutePath)) {
+        // For other cases, just display the code block content
         console.log('\nCode block content:');
         const lines = action.newCodeBlock.split('\n').slice(0, 10); // First 10 lines
         lines.forEach((line) => {
