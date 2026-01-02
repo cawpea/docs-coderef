@@ -69,7 +69,7 @@ describe('backup', () => {
       mockedFs.existsSync.mockReturnValue(false);
 
       expect(() => restoreBackup(backupPath, originalPath)).toThrow(
-        'バックアップファイルが見つかりません'
+        'Backup file not found: /test/file.txt.backup'
       );
     });
   });

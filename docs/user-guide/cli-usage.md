@@ -1,5 +1,7 @@
 # CLI Usage
 
+Both `validate` and `fix` commands provide color-coded output with consistent formatting to help you quickly identify issues and track progress. Messages use standardized colors (errors in red, warnings in yellow, success in green, etc.) and contextual emoji indicators for improved readability.
+
 ## Validate Command
 
 ### Basic Usage
