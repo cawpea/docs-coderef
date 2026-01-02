@@ -77,6 +77,30 @@ export async function askSelectOption(
 }
 
 /**
+ * Display markdown code block with syntax highlighting
+ */
+function displayColoredCodeBlock(preview: string): void {
+  // Extract code block from markdown (```language\ncode\n```)
+  const codeBlockMatch = /```(\w*)\n([\s\S]*?)\n```/.exec(preview);
+
+  if (codeBlockMatch) {
+    const language = codeBlockMatch[1] || '';
+    const code = codeBlockMatch[2];
+
+    // Display with color
+    console.log(COLOR_SCHEMES.dim(`\`\`\`${language}`));
+    const lines = code.split('\n');
+    lines.forEach((line) => {
+      console.log(COLOR_SCHEMES.success(`+ ${line}`));
+    });
+    console.log(COLOR_SCHEMES.dim('```'));
+  } else {
+    // No code block found, display as-is
+    console.log(preview);
+  }
+}
+
+/**
  * Display fix preview
  */
 export function displayFixPreview(action: FixAction, projectRoot: string): void {
@@ -138,7 +162,7 @@ export function displayFixPreview(action: FixAction, projectRoot: string): void 
         });
         console.log(COLOR_SCHEMES.dim('━'.repeat(64)));
       } else {
-        console.log(action.preview);
+        displayColoredCodeBlock(action.preview);
       }
       break;
     }
@@ -182,7 +206,7 @@ export function displayFixPreview(action: FixAction, projectRoot: string): void 
     default: {
       // For other cases, display default preview
       if (action.preview) {
-        console.log(action.preview);
+        displayColoredCodeBlock(action.preview);
       }
       break;
     }
