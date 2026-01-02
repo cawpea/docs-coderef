@@ -18,6 +18,7 @@ import { findMarkdownFiles, extractCodeRefs, validateCodeRef } from '@/core/vali
 import { isIgnored, loadDocsignorePatterns } from '@/utils/ignore-pattern';
 import { displayLineRangeDiff } from '@/utils/diff-display';
 import { extractLinesFromFile } from '@/utils/code-comparison';
+import { msg } from '@/utils/message-formatter';
 
 /**
  * CLI options
@@ -74,7 +75,7 @@ function resolveTargetFiles(targets: string[], projectRoot: string, docsPath: st
         resolvedFiles.add(absolutePath);
       }
     } else {
-      console.warn(`⚠️  File not found: ${target}`);
+      console.warn(msg.warning(`File not found: ${target}`));
     }
   }
 
@@ -87,7 +88,9 @@ function resolveTargetFiles(targets: string[], projectRoot: string, docsPath: st
 export async function main(args: string[] = process.argv.slice(2)): Promise<void> {
   const options = parseCliArgs(args);
 
-  console.log('🔍 Validating CODE_REF references in documentation...\n');
+  msg.setVerbose(options.verbose);
+
+  console.log(`${msg.startValidation('Validating CODE_REF references in documentation...')}\n`);
 
   // Load configuration
   const config = loadConfig({
@@ -100,14 +103,14 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
   const allMarkdownFiles = resolveTargetFiles(options.files, config.projectRoot, docsPath);
 
   if (options.files.length > 0 && options.verbose) {
-    console.log(`📋 Specified files/directories: ${options.files.join(', ')}\n`);
+    console.log(`${msg.debug(`Specified files/directories: ${options.files.join(', ')}`)}\n`);
   }
 
   // Load ignore patterns
   const ignoreFilePath = getIgnoreFilePath(config);
   const ignorePatterns = ignoreFilePath ? loadDocsignorePatterns(ignoreFilePath) : [];
   if (options.verbose) {
-    console.log(`📋 Loaded ${ignorePatterns.length} ignore patterns\n`);
+    console.log(`${msg.debug(`Loaded ${ignorePatterns.length} ignore patterns`)}\n`);
   }
 
   // Filter files not excluded by ignore patterns
@@ -118,11 +121,11 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
 
   if (options.verbose && allMarkdownFiles.length > markdownFiles.length) {
     console.log(
-      `📋 ${allMarkdownFiles.length - markdownFiles.length} files excluded by ignore patterns\n`
+      `${msg.debug(`${allMarkdownFiles.length - markdownFiles.length} files excluded by ignore patterns`)}\n`
     );
   }
 
-  console.log(`📄 Found ${markdownFiles.length} markdown files\n`);
+  console.log(`${msg.file(`Found ${markdownFiles.length} markdown files`)}\n`);
 
   // Extract all CODE_REF references
   let totalRefs = 0;
@@ -137,15 +140,15 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
       refs.forEach((ref) => allRefs.push({ ref, file }));
 
       if (options.verbose) {
-        console.log(`  ${path.relative(docsPath, file)}: ${refs.length} references`);
+        console.log(msg.debug(`  ${path.relative(docsPath, file)}: ${refs.length} references`));
       }
     }
   }
 
-  console.log(`\n📌 Found ${totalRefs} CODE_REF references\n`);
+  console.log(`\n${msg.info(`Found ${totalRefs} CODE_REF references`)}\n`);
 
   if (totalRefs === 0) {
-    console.log('✅ No CODE_REF references found (no validation needed)');
+    console.log(msg.success('No CODE_REF references found (no validation needed)'));
     process.exit(0);
   }
 
@@ -156,10 +159,10 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
 
   // Display results
   if (allErrors.length === 0) {
-    console.log('✅ All CODE_REF references are valid!');
+    console.log(msg.success('All CODE_REF references are valid!'));
     process.exit(0);
   } else {
-    console.log(`❌ Found ${allErrors.length} errors:\n`);
+    console.log(`${msg.error(`Found ${allErrors.length} errors:`)}\n`);
 
     // Group errors by document
     const errorsByDoc: Record<string, any[]> = {};
@@ -176,15 +179,15 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
 
     // Display error details
     for (const [docFile, errors] of Object.entries(errorsByDoc)) {
-      console.log(`📄 ${docFile}:`);
+      console.log(`${msg.file(docFile)}:`);
 
       for (const error of errors) {
-        console.log(`  ❌ ${error.type}: ${error.message}`);
+        console.log(`   ${msg.error(`${error.type}: ${error.message}`)}`);
 
         // Display line number in document
         const filePath = path.relative(config.projectRoot, error.ref.docFile);
         const lineInfo = error.ref.docLineNumber ? `:${error.ref.docLineNumber}` : '';
-        console.log(`     ${filePath}${lineInfo}: ${error.ref.fullMatch}`);
+        console.log(msg.context(`   ${filePath}${lineInfo}: ${error.ref.fullMatch}`));
 
         // Display diff for CODE_LOCATION_MISMATCH in verbose mode
         if (error.type === 'CODE_LOCATION_MISMATCH' && error.suggestedLines && options.verbose) {
@@ -212,7 +215,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
 // Run CLI if this file is executed directly
 if (require.main === module) {
   main().catch((error) => {
-    console.error('Error:', error);
+    console.error(msg.error(`Error: ${error}`));
     process.exit(1);
   });
 }

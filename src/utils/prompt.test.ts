@@ -267,7 +267,8 @@ describe('prompt', () => {
       displayFixPreview(action, testProjectRoot);
 
       expect(consoleLogSpy).toHaveBeenCalledWith('\nChanges: Insert code block');
-      expect(consoleLogSpy).toHaveBeenCalledWith('\x1b[32m+ Insert code block:\x1b[0m');
+      // Check that "+ Insert code block:" was called (with or without ANSI codes)
+      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('+ Insert code block:'));
     });
 
     it('CODE_CONTENT_MISMATCHタイプの修正プレビューを表示すること', () => {

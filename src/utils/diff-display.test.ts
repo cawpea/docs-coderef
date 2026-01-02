@@ -8,9 +8,15 @@ describe('displayCodeDiff', () => {
     // ヘッダーとフッターが含まれることを確認
     expect(result).toContain('Expected code');
     expect(result).toContain('Actual code');
-    // 差分マーカー（- や +）がないことを確認
-    expect(result.split('\n').filter((line) => line.startsWith('-')).length).toBe(0);
-    expect(result.split('\n').filter((line) => line.startsWith('+')).length).toBe(0);
+    // 差分マーカー（- や +）がないことを確認（ヘッダー行は除く）
+    const lines = result.split('\n');
+    const diffMarkerLines = lines.filter(
+      (line) =>
+        (line.startsWith('- ') || line.startsWith('+ ')) &&
+        !line.includes('Expected code') &&
+        !line.includes('Actual code')
+    );
+    expect(diffMarkerLines.length).toBe(0);
   });
 
   it('異なるコードの場合、削除と追加を表示する', () => {
@@ -73,6 +79,44 @@ describe('displayCodeDiff', () => {
 
     // 追加された行
     expect(result).toContain('+ line3');
+  });
+
+  it('複数行の変更がグループ化されて表示される', () => {
+    const expected =
+      'export function formatUserInfo(\n  firstName: string,\n  lastName: string,\n  age: number\n): string {';
+    const actual =
+      '\n/**\n * Function with multiple parameters\n */\nexport function formatUserInfo(firstName: string, lastName: string, age: number): string {';
+    const result = displayCodeDiff(expected, actual);
+    const lines = result.split('\n');
+
+    // すべての削除行のインデックスを取得（ヘッダー行を除く）
+    const removedLineIndices = lines
+      .map((line, idx) => (line.startsWith('- ') && !line.includes('Expected code') ? idx : -1))
+      .filter((idx) => idx !== -1);
+
+    // すべての追加行のインデックスを取得（ヘッダー行を除く）
+    const addedLineIndices = lines
+      .map((line, idx) => (line.startsWith('+ ') && !line.includes('Actual code') ? idx : -1))
+      .filter((idx) => idx !== -1);
+
+    // 削除行が連続していることを確認
+    if (removedLineIndices.length > 1) {
+      for (let i = 1; i < removedLineIndices.length; i++) {
+        expect(removedLineIndices[i]).toBe(removedLineIndices[i - 1] + 1);
+      }
+    }
+
+    // 追加行が連続していることを確認
+    if (addedLineIndices.length > 1) {
+      for (let i = 1; i < addedLineIndices.length; i++) {
+        expect(addedLineIndices[i]).toBe(addedLineIndices[i - 1] + 1);
+      }
+    }
+
+    // 削除行グループが追加行グループより前にあることを確認
+    if (removedLineIndices.length > 0 && addedLineIndices.length > 0) {
+      expect(removedLineIndices[removedLineIndices.length - 1]).toBeLessThan(addedLineIndices[0]);
+    }
   });
 });
 

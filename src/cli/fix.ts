@@ -20,6 +20,7 @@ import { formatFixOptions } from '@/utils/styles';
 import type { CodeRefError, FixOptions, FixResult } from '@/utils/types';
 import { extractCodeRefs, findMarkdownFiles, validateCodeRef } from '@/core/validate';
 import { loadFixConfig, getDocsPath, type CodeRefFixConfig } from '@/config';
+import { msg } from '@/utils/message-formatter';
 
 // Parse command line arguments
 function parseArgs(): FixOptions {
@@ -86,23 +87,28 @@ export async function main(): Promise<void> {
     verbose: options.verbose,
   });
 
-  console.log('🔧 Starting CODE_REF error fixes...\n');
+  // Set verbose mode for message formatter
+  msg.setVerbose(options.verbose);
+
+  console.log(`${msg.startFix('Starting CODE_REF error fixes...')}\n`);
 
   if (options.dryRun) {
-    console.log('⚠️  DRY RUN mode: No actual changes will be made\n');
+    console.log(`${msg.warning('DRY RUN mode: No actual changes will be made')}\n`);
   }
 
   // Collect errors
   const errorGroups = collectErrors(config);
 
   if (errorGroups.length === 0) {
-    console.log('✅ No fixable errors found');
+    console.log(msg.success('No fixable errors found'));
     process.exit(0);
   }
 
   // Statistics
   const totalErrors = errorGroups.reduce((sum, g) => sum + g.errors.length, 0);
-  console.log(`📊 Detected ${totalErrors} fixable error(s) in ${errorGroups.length} file(s)\n`);
+  console.log(
+    `${msg.info(`Detected ${totalErrors} fixable error(s) in ${errorGroups.length} file(s)`)}\n`
+  );
 
   // Interactive interface
   const rl = createPromptInterface();
@@ -111,8 +117,8 @@ export async function main(): Promise<void> {
 
   try {
     for (const group of errorGroups) {
-      console.log(`\n📄 ${path.relative(config.projectRoot, group.docFile)}`);
-      console.log(`   ${group.errors.length} error(s)\n`);
+      console.log(`\n${msg.file(path.relative(config.projectRoot, group.docFile))}`);
+      console.log(`${msg.context(`${group.errors.length} error(s)`)}\n`);
 
       // Sort errors in descending order by docLineNumber (bottom to top)
       // To prevent fixes at the bottom from affecting line numbers at the top
@@ -125,10 +131,8 @@ export async function main(): Promise<void> {
       let _lineOffset = 0; // Track cumulative offset (for future edge case handling)
 
       for (const error of sortedErrors) {
-        console.log(`\n❌ ${error.type}: ${error.message}`);
-        console.log(
-          `   Reference: ${path.relative(config.projectRoot, error.ref.docFile)}${error.ref.docLineNumber ? `:${error.ref.docLineNumber}` : ''}`
-        );
+        const location = `${path.relative(config.projectRoot, error.ref.docFile)}${error.ref.docLineNumber ? `:${error.ref.docLineNumber}` : ''}`;
+        console.log(`\n${msg.errorDetail(error.type, error.message, location)}`);
 
         // Create fix action
         let action;
@@ -141,12 +145,12 @@ export async function main(): Promise<void> {
 
           // If there are multiple options, let the user choose
           if (Array.isArray(fixActionResult)) {
-            console.log('\n🛠️ Please select a fix method:\n');
+            console.log(`\n${msg.info('Please select a fix method:')}\n`);
             console.log(formatFixOptions(fixActionResult));
 
             if (options.auto) {
               // Auto-select first option in auto mode
-              console.log('   ℹ️  Auto-selecting option 1 in auto mode\n');
+              console.log(`${msg.context('Auto-selecting option 1 in auto mode')}\n`);
               action = fixActionResult[0];
             } else {
               // Let user choose
@@ -156,14 +160,14 @@ export async function main(): Promise<void> {
                   if (num >= 1 && num <= fixActionResult.length) {
                     resolve(num - 1);
                   } else {
-                    console.log('   ⚠️  Invalid selection. Skipping.');
+                    console.log(msg.context('Invalid selection. Skipping.'));
                     resolve(-1);
                   }
                 });
               });
 
               if (selection === -1) {
-                console.log('   ⏭️  Skipped');
+                console.log(msg.context('Skipped'));
                 continue;
               }
 
@@ -175,7 +179,7 @@ export async function main(): Promise<void> {
         }
 
         if (!action) {
-          console.log('   ⚠️  This error cannot be fixed');
+          console.log(msg.context('This error cannot be fixed'));
           continue;
         }
 
@@ -191,13 +195,13 @@ export async function main(): Promise<void> {
         }
 
         if (!shouldFix) {
-          console.log('   ⏭️  Skipped');
+          console.log(msg.context('Skipped'));
           continue;
         }
 
         // Dry run check
         if (options.dryRun) {
-          console.log('   ✅ [DRY RUN] Simulated fix');
+          console.log(msg.context('[DRY RUN] Simulated fix'));
           fixResults.push({ success: true, action });
           continue;
         }
@@ -207,7 +211,7 @@ export async function main(): Promise<void> {
         if (!options.noBackup && !backupFiles.has(group.docFile)) {
           backupPath = createBackup(group.docFile);
           backupFiles.add(group.docFile);
-          console.log(`   💾 Backup created: ${path.basename(backupPath)}`);
+          console.log(msg.context(`Backup created: ${path.basename(backupPath)}`));
         }
 
         // Apply fix
@@ -216,15 +220,15 @@ export async function main(): Promise<void> {
           _lineOffset += lineDelta; // Accumulate offset
 
           // Debug log
-          if (lineDelta !== 0) {
-            console.log(`   📊 Line delta: ${lineDelta > 0 ? '+' : ''}${lineDelta}`);
+          if (lineDelta !== 0 && options.verbose) {
+            console.log(msg.debug(`   Line delta: ${lineDelta > 0 ? '+' : ''}${lineDelta}`));
           }
 
-          console.log('   ✅ Fix applied');
+          console.log(msg.context('Fix applied'));
           fixResults.push({ success: true, action, backupPath });
         } catch (err) {
           const errorMsg = err instanceof Error ? err.message : String(err);
-          console.log(`   ❌ Fix failed: ${errorMsg}`);
+          console.log(msg.context(`Fix failed: ${errorMsg}`));
           fixResults.push({ success: false, action, error: errorMsg, backupPath });
         }
       }
@@ -234,22 +238,15 @@ export async function main(): Promise<void> {
   }
 
   // Result summary
-  console.log(`\n${'='.repeat(60)}`);
-  console.log('📊 Fix Results Summary\n');
-
   const successful = fixResults.filter((r) => r.success).length;
   const failed = fixResults.filter((r) => !r.success).length;
 
-  console.log(`✅ Successful: ${successful}`);
-  console.log(`❌ Failed: ${failed}`);
+  const backupPaths =
+    !options.noBackup && backupFiles.size > 0
+      ? Array.from(backupFiles).map((file) => path.relative(config.projectRoot, `${file}.backup`))
+      : [];
 
-  if (backupFiles.size > 0 && !options.noBackup) {
-    console.log(`\n💾 Backup files: ${backupFiles.size}`);
-    for (const file of backupFiles) {
-      const backupPath = `${file}.backup`;
-      console.log(`   ${path.relative(config.projectRoot, backupPath)}`);
-    }
-  }
+  console.log(msg.summary(successful, failed, backupPaths));
 
   process.exit(failed > 0 ? 1 : 0);
 }
@@ -257,7 +254,7 @@ export async function main(): Promise<void> {
 // When executed as a script
 if (require.main === module) {
   main().catch((error) => {
-    console.error('\n❌ An error occurred:', error);
+    console.error(`\n${msg.error(`An error occurred: ${error}`)}`);
     process.exit(1);
   });
 }

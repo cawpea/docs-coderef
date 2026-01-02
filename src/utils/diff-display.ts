@@ -2,13 +2,7 @@
  * Utility for visually displaying code diffs
  */
 
-// ANSI color codes
-const COLORS = {
-  RED: '\x1b[31m',
-  GREEN: '\x1b[32m',
-  RESET: '\x1b[0m',
-  DIM: '\x1b[2m',
-};
+import { COLOR_SCHEMES } from './message-formatter';
 
 /**
  * Display diff between two code blocks line by line
@@ -24,14 +18,26 @@ export function displayCodeDiff(expected: string, actual: string): string {
   const maxLines = Math.max(expectedLines.length, actualLines.length);
 
   // Header
-  output.push(
-    `${COLORS.DIM}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${COLORS.RESET}`
-  );
-  output.push(`${COLORS.RED}- Expected code (in document)${COLORS.RESET}`);
-  output.push(`${COLORS.GREEN}+ Actual code (in file)${COLORS.RESET}`);
-  output.push(
-    `${COLORS.DIM}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${COLORS.RESET}`
-  );
+  output.push(COLOR_SCHEMES.dim('━'.repeat(64)));
+  output.push(COLOR_SCHEMES.error('- Expected code (in document)'));
+  output.push(COLOR_SCHEMES.success('+ Actual code (in file)'));
+  output.push(COLOR_SCHEMES.dim('━'.repeat(64)));
+
+  // Buffer for grouping consecutive changes
+  const removedLines: string[] = [];
+  const addedLines: string[] = [];
+
+  const flushChanges = () => {
+    // Output all removed lines first, then all added lines
+    removedLines.forEach((line) => {
+      output.push(COLOR_SCHEMES.error(`- ${line}`));
+    });
+    addedLines.forEach((line) => {
+      output.push(COLOR_SCHEMES.success(`+ ${line}`));
+    });
+    removedLines.length = 0;
+    addedLines.length = 0;
+  };
 
   // Compare line by line
   for (let i = 0; i < maxLines; i++) {
@@ -39,25 +45,32 @@ export function displayCodeDiff(expected: string, actual: string): string {
     const actualLine = actualLines[i];
 
     if (expectedLine === actualLine) {
+      // Flush any pending changes before showing matching lines
+      if (removedLines.length > 0 || addedLines.length > 0) {
+        flushChanges();
+      }
       // Matching lines (when both exist)
       if (expectedLine !== undefined) {
         output.push(`  ${expectedLine}`);
       }
     } else {
-      // Expected lines (deleted lines)
+      // Buffer expected lines (deleted lines)
       if (expectedLine !== undefined) {
-        output.push(`${COLORS.RED}- ${expectedLine}${COLORS.RESET}`);
+        removedLines.push(expectedLine);
       }
-      // Actual lines (added lines)
+      // Buffer actual lines (added lines)
       if (actualLine !== undefined) {
-        output.push(`${COLORS.GREEN}+ ${actualLine}${COLORS.RESET}`);
+        addedLines.push(actualLine);
       }
     }
   }
 
-  output.push(
-    `${COLORS.DIM}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${COLORS.RESET}`
-  );
+  // Flush any remaining changes
+  if (removedLines.length > 0 || addedLines.length > 0) {
+    flushChanges();
+  }
+
+  output.push(COLOR_SCHEMES.dim('━'.repeat(64)));
 
   return output.join('\n');
 }
@@ -77,18 +90,14 @@ export function displayLineRangeDiff(
   const output: string[] = [];
 
   // Header
+  output.push(COLOR_SCHEMES.dim('━'.repeat(64)));
   output.push(
-    `${COLORS.DIM}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${COLORS.RESET}`
+    COLOR_SCHEMES.error(`- Expected line range: ${expectedRange.start}-${expectedRange.end}`)
   );
   output.push(
-    `${COLORS.RED}- Expected line range: ${expectedRange.start}-${expectedRange.end}${COLORS.RESET}`
+    COLOR_SCHEMES.success(`+ Actual line range: ${actualRange.start}-${actualRange.end}`)
   );
-  output.push(
-    `${COLORS.GREEN}+ Actual line range: ${actualRange.start}-${actualRange.end}${COLORS.RESET}`
-  );
-  output.push(
-    `${COLORS.DIM}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${COLORS.RESET}`
-  );
+  output.push(COLOR_SCHEMES.dim('━'.repeat(64)));
 
   // Display code (content is the same, show both line numbers)
   const codeLines = code.split('\n');
@@ -98,15 +107,13 @@ export function displayLineRangeDiff(
 
     // Display expected and actual line numbers side by side
     output.push(
-      `${COLORS.RED}${expectedLineNum.toString().padStart(4)}${COLORS.RESET} | ` +
-        `${COLORS.GREEN}${actualLineNum.toString().padStart(4)}${COLORS.RESET} | ` +
+      `${COLOR_SCHEMES.error(expectedLineNum.toString().padStart(4))} | ` +
+        `${COLOR_SCHEMES.success(actualLineNum.toString().padStart(4))} | ` +
         `${line}`
     );
   });
 
-  output.push(
-    `${COLORS.DIM}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${COLORS.RESET}`
-  );
+  output.push(COLOR_SCHEMES.dim('━'.repeat(64)));
 
   return output.join('\n');
 }
