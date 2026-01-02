@@ -9,6 +9,7 @@ import * as readline from 'readline';
 import { extractLinesFromFile } from '@/utils/code-comparison';
 import { displayCodeDiff, displayLineRangeDiff } from '@/utils/diff-display';
 import type { FixAction } from '@/utils/types';
+import { msg, COLOR_SCHEMES } from '@/utils/message-formatter';
 
 /**
  * Create readline interface
@@ -71,7 +72,7 @@ export async function askSelectOption(
       return selection - 1;
     }
 
-    console.log('❌ Invalid selection. Please try again.');
+    console.log(msg.error('Invalid selection. Please try again.'));
   }
 }
 
@@ -129,13 +130,13 @@ export function displayFixPreview(action: FixAction, projectRoot: string): void 
     case 'INSERT_CODE_BLOCK': {
       // For new insertion, simply display the code to be inserted
       if (action.newCodeBlock) {
-        console.log('\x1b[32m+ Insert code block:\x1b[0m');
-        console.log('\x1b[2m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m');
+        console.log(COLOR_SCHEMES.success('+ Insert code block:'));
+        console.log(COLOR_SCHEMES.dim('━'.repeat(64)));
         const lines = action.newCodeBlock.split('\n');
         lines.forEach((line) => {
-          console.log(`\x1b[32m+ ${line}\x1b[0m`);
+          console.log(COLOR_SCHEMES.success(`+ ${line}`));
         });
-        console.log('\x1b[2m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m');
+        console.log(COLOR_SCHEMES.dim('━'.repeat(64)));
       } else {
         console.log(action.preview);
       }
@@ -159,10 +160,10 @@ export function displayFixPreview(action: FixAction, projectRoot: string): void 
       const oldComment = error.ref.fullMatch;
       const newComment = `<!-- CODE_REF: ${error.ref.refPath}:${action.newStartLine}-${action.newEndLine} -->`;
 
-      console.log('\x1b[2m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m');
-      console.log(`\x1b[31m- ${oldComment}\x1b[0m`);
-      console.log(`\x1b[32m+ ${newComment}\x1b[0m`);
-      console.log('\x1b[2m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m');
+      console.log(COLOR_SCHEMES.dim('━'.repeat(64)));
+      console.log(COLOR_SCHEMES.error(`- ${oldComment}`));
+      console.log(COLOR_SCHEMES.success(`+ ${newComment}`));
+      console.log(COLOR_SCHEMES.dim('━'.repeat(64)));
 
       // If code block also exists, display content
       if (action.newCodeBlock && fs.existsSync(absolutePath)) {

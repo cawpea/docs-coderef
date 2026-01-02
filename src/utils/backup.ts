@@ -1,19 +1,20 @@
 /**
- * バックアップ管理ユーティリティ
+ * Backup management utilities
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
 
 /**
- * ファイルのバックアップを作成
- * @returns バックアップファイルのパス
+ * Create a backup of a file
+ * @param filePath Path to the file to backup
+ * @returns Path to the backup file
  */
 export function createBackup(filePath: string): string {
   let backupPath = `${filePath}.backup`;
   let counter = 1;
 
-  // ユニークなバックアップファイル名を検索
+  // Find a unique backup filename
   while (fs.existsSync(backupPath)) {
     backupPath = `${filePath}.backup.${counter}`;
     counter++;
@@ -24,18 +25,21 @@ export function createBackup(filePath: string): string {
 }
 
 /**
- * バックアップから復元
+ * Restore a file from backup
+ * @param backupPath Path to the backup file
+ * @param originalPath Path where the file should be restored
  */
 export function restoreBackup(backupPath: string, originalPath: string): void {
   if (!fs.existsSync(backupPath)) {
-    throw new Error(`バックアップファイルが見つかりません: ${backupPath}`);
+    throw new Error(`Backup file not found: ${backupPath}`);
   }
 
   fs.copyFileSync(backupPath, originalPath);
 }
 
 /**
- * バックアップファイルを削除
+ * Delete a backup file
+ * @param backupPath Path to the backup file to delete
  */
 export function deleteBackup(backupPath: string): void {
   if (fs.existsSync(backupPath)) {
@@ -44,7 +48,9 @@ export function deleteBackup(backupPath: string): void {
 }
 
 /**
- * 指定ファイルの全バックアップファイルをリスト
+ * List all backup files for a given file
+ * @param filePath Path to the original file
+ * @returns Array of backup file paths
  */
 export function listBackups(filePath: string): string[] {
   const dir = path.dirname(filePath);

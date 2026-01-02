@@ -19,6 +19,7 @@ import {
 import { askSelectOption } from '@/utils/prompt';
 import type { CodeRefError, ExpandedMatch, FixAction } from '@/utils/types';
 import type { CodeRefConfig } from '@/config';
+import { msg } from '@/utils/message-formatter';
 
 /**
  * Check if error is fixable
@@ -292,7 +293,9 @@ export function createContentMismatchFix(
     const expandedCode = extractLinesFromFile(absolutePath, expanded.start, expanded.end);
     const scopeInfo = expanded.scopeType ? ` (${expanded.scopeType})` : '';
     console.log(
-      `   ℹ️  Expanded ${ref.startLine}-${ref.endLine} to ${expanded.start}-${expanded.end} using AST analysis${scopeInfo}`
+      msg.debug(
+        `   Expanded ${ref.startLine}-${ref.endLine} to ${expanded.start}-${expanded.end} using AST analysis${scopeInfo}`
+      )
     );
 
     const oldComment = ref.fullMatch;
@@ -594,7 +597,7 @@ export async function handleMultipleMatches(
           ? ' (low confidence)'
           : '';
     console.log(
-      `\n✓ Detected single match in ${ref.refPath}: lines ${match.start}-${match.end}${confidenceInfo}`
+      `\n${msg.success(`Detected single match in ${ref.refPath}: lines ${match.start}-${match.end}${confidenceInfo}`)}`
     );
     return {
       type: 'UPDATE_LINE_NUMBERS',
@@ -619,7 +622,7 @@ export async function handleMultipleMatches(
     const bestMatch = highConfidenceMatches[0];
     const scopeInfo = bestMatch.scopeType ? ` (${bestMatch.scopeType})` : '';
     console.log(
-      `\n✓ Auto-selected most appropriate match in ${ref.refPath}: lines ${bestMatch.start}-${bestMatch.end}${scopeInfo}`
+      `\n${msg.success(`Auto-selected most appropriate match in ${ref.refPath}: lines ${bestMatch.start}-${bestMatch.end}${scopeInfo}`)}`
     );
     return {
       type: 'UPDATE_LINE_NUMBERS',
@@ -633,7 +636,7 @@ export async function handleMultipleMatches(
   }
 
   // Otherwise let user choose
-  console.log(`\n⚠️  Code found in ${matches.length} locations in ${ref.refPath}:`);
+  console.log(`\n${msg.warning(`Code found in ${matches.length} locations in ${ref.refPath}:`)}`);
   const options = sortedMatches.map((m) => {
     const confidenceLabel =
       m.confidence === 'high' ? 'high' : m.confidence === 'medium' ? 'medium' : 'low';
@@ -646,10 +649,10 @@ export async function handleMultipleMatches(
 
   // Warn if selected match has low confidence
   if (selectedMatch.confidence === 'low') {
-    console.warn('⚠️  Scope detection confidence is low, please verify the result.');
+    console.warn(msg.warning('Scope detection confidence is low, please verify the result.'));
   }
   if (selectedMatch.expansionType === 'none') {
-    console.warn('⚠️  Structural analysis failed, using simple string matching.');
+    console.warn(msg.warning('Structural analysis failed, using simple string matching.'));
   }
 
   return {

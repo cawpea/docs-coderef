@@ -4,20 +4,21 @@
 
 import chalk from 'chalk';
 import type { FixAction } from './types';
+import { COLOR_SCHEMES } from './message-formatter';
 
 /**
- * Color scheme (consistent with diff-display.ts and new additions)
+ * Color scheme (imported from message-formatter for consistency)
  */
 const colors = {
-  // Existing colors from diff-display.ts
-  success: chalk.green,
-  error: chalk.red,
-  dim: chalk.dim,
+  // Core colors from message-formatter
+  success: COLOR_SCHEMES.success,
+  error: COLOR_SCHEMES.error,
+  dim: COLOR_SCHEMES.dim,
 
-  // New colors for fix options
-  primary: chalk.cyan.bold, // Option numbers
-  muted: chalk.gray, // Supplementary info
-  code: chalk.yellow, // Code blocks
+  // Accent colors for fix options
+  primary: COLOR_SCHEMES.highlight, // Option numbers
+  muted: COLOR_SCHEMES.debug, // Supplementary info
+  code: COLOR_SCHEMES.code, // Code blocks
 };
 
 /**
