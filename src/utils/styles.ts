@@ -119,23 +119,35 @@ function extractLineInfo(preview: string): string | null {
  * @returns Array of formatted lines
  */
 function formatPreview(preview: string): string[] {
-  const lines = preview.split('\n');
+  // Combine lines where arrow is on separate line
+  // Pattern: "line1\n→ line2" -> "line1 → line2"
+  const processedPreview = preview.replace(/\n(→\s*)/g, ' $1');
+
+  const lines = processedPreview.split('\n');
   const output: string[] = [];
+
+  const processLine = (line: string) => {
+    // Detect CODE_REF changes with arrow and split into - and + lines
+    if (line.includes('→') && line.includes('<!-- CODE_REF:')) {
+      const parts = line.split('→');
+      if (parts.length === 2) {
+        output.push(colors.error(`- ${parts[0].trim()}`));
+        output.push(colors.success(`+ ${parts[1].trim()}`));
+        return;
+      }
+    }
+    output.push(formatCodeLine(line));
+  };
 
   // Truncate if too long
   if (lines.length > MAX_PREVIEW_LINES) {
     const truncatedLines = lines.slice(0, TRUNCATE_SHOW_LINES);
     const remainingCount = lines.length - TRUNCATE_SHOW_LINES;
 
-    truncatedLines.forEach((line) => {
-      output.push(formatCodeLine(line));
-    });
-
+    truncatedLines.forEach(processLine);
     output.push(colors.muted(`... (${remainingCount} more lines)`));
   } else {
-    lines.forEach((line) => {
-      output.push(formatCodeLine(line));
-    });
+    lines.forEach(processLine);
   }
 
   return output;
@@ -151,6 +163,14 @@ function formatCodeLine(line: string): string {
   // Detect code block markers
   if (line.trim().startsWith('```')) {
     return colors.dim(line);
+  }
+
+  // Detect CODE_REF comment
+  if (line.includes('<!-- CODE_REF:')) {
+    return line
+      .replace(/<!--/g, colors.dim('<!--'))
+      .replace(/-->/g, colors.dim('-->'))
+      .replace(/(CODE_REF:)/g, chalk.cyan.bold('$1'));
   }
 
   // Detect keywords (basic highlighting)
