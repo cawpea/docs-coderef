@@ -6,7 +6,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
 
-import { extractLinesFromFile } from '@/utils/code-comparison';
 import { displayCodeDiff } from '@/utils/diff-display';
 import type { FixAction } from '@/utils/types';
 import { msg, COLOR_SCHEMES } from '@/utils/message-formatter';
@@ -155,17 +154,13 @@ export function displayFixPreview(action: FixAction, projectRoot: string): void 
       console.log(COLOR_SCHEMES.success(`+ ${newComment}`));
       console.log(COLOR_SCHEMES.dim('━'.repeat(64)));
 
-      // If this is from CODE_CONTENT_MISMATCH, show what the actual code should be
-      if (error.type === 'CODE_CONTENT_MISMATCH' && fs.existsSync(absolutePath)) {
-        const actualCode = extractLinesFromFile(
-          absolutePath,
-          action.newStartLine!,
-          action.newEndLine!
+      // Note for CODE_CONTENT_MISMATCH: code block will remain unchanged
+      if (error.type === 'CODE_CONTENT_MISMATCH') {
+        console.log(
+          COLOR_SCHEMES.warning(
+            '\n⚠️  Note: Code block will remain unchanged. Please manually adjust if needed.'
+          )
         );
-
-        console.log('\nNote: Code block will be kept as-is. Actual code in file:');
-        const diff = displayCodeDiff(action.newCodeBlock ?? '', actualCode);
-        console.log(diff);
       } else if (action.newCodeBlock && fs.existsSync(absolutePath)) {
         // For other cases, just display the code block content
         console.log('\nCode block content:');
